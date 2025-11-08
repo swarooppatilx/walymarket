@@ -47,35 +47,69 @@ export const useGetMarkets = () => {
     const { useNetworkVariable } = useNetworkConfig();
     const packageId = useNetworkVariable(CONTRACT_PACKAGE_VARIABLE_NAME);
 
-    const [markets, setMarkets] = useState<Market[]>([]);
+    const [activeMarkets, setActiveMarkets] = useState<Market[]>([]);
+    const [resolvedMarkets, setResolvedMarkets] = useState<Market[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
 
     const load = useCallback(async () => {
-        if (!packageId) return;
-        const eventType = fullStructName(packageId, 'MarketCreated');
-        const events = await client.queryEvents({
-            query: { MoveEventType: eventType },
-            limit: 100,
-            order: 'descending',
-        });
-        const ids: string[] = Array.from(
-            new Set(
-                (events.data || [])
-                    .map((e: any) => e.parsedJson?.market_id || e.parsedJson?.marketId)
-                    .filter((x: any) => typeof x === 'string')
-            )
-        );
-        if (!ids.length) {
-            setMarkets([]);
+        if (!packageId) {
+            setActiveMarkets([]);
+            setResolvedMarkets([]);
+            setIsLoading(false);
+            setError(null);
             return;
         }
-        const objects = await client.multiGetObjects({ ids, options: { showContent: true } });
-        const parsed = objects.map(parseFromObjectResponse).filter(Boolean) as Market[];
-        setMarkets(parsed.filter((m) => !m.resolved));
+
+        setIsLoading(true);
+        setError(null);
+        try {
+            const eventType = fullStructName(packageId, 'MarketCreated');
+            const events = await client.queryEvents({
+                query: { MoveEventType: eventType },
+                limit: 100,
+                order: 'descending',
+            });
+            const ids = Array.from(
+                new Set(
+                    (events.data || [])
+                        .map((e: any) => e.parsedJson?.market_id || e.parsedJson?.marketId)
+                        .filter((x: any) => typeof x === 'string')
+                )
+            ) as string[];
+            const order = new Map(ids.map((id, index) => [id, index]));
+
+            if (!ids.length) {
+                setActiveMarkets([]);
+                setResolvedMarkets([]);
+                return;
+            }
+
+            const objects = await client.multiGetObjects({ ids, options: { showContent: true } });
+            const parsed = objects.map(parseFromObjectResponse).filter(Boolean) as Market[];
+            const active = parsed.filter((m) => !m.resolved);
+            const resolved = parsed
+                .filter((m) => m.resolved)
+                .sort((a, b) => (order.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+
+            setActiveMarkets(active);
+            setResolvedMarkets(resolved);
+        } catch (err) {
+            setError(err as Error);
+        } finally {
+            setIsLoading(false);
+        }
     }, [client, packageId]);
 
     useEffect(() => {
         load();
     }, [load]);
 
-    return { markets, refetch: load };
+    return {
+        markets: activeMarkets,
+        resolvedMarkets,
+        isLoading,
+        error,
+        refetch: load,
+    };
 };

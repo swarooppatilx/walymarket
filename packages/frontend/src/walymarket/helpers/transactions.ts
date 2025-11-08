@@ -70,3 +70,18 @@ export const prepareClaimWinningsTx = (
     });
     return tx;
 };
+
+export const prepareClaimAllWinningsTx = (
+    packageId: string,
+    marketId: string,
+    ticketIds: string[]
+): Transaction => {
+    const tx = new Transaction();
+    for (const id of ticketIds) {
+        tx.moveCall({
+            target: fullFunctionName(packageId, 'claim_winnings_and_transfer'),
+            arguments: [tx.object(marketId), tx.object(id)],
+        });
+    }
+    return tx;
+};
