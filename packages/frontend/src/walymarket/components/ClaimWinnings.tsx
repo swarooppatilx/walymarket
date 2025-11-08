@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import { Button, Card, Flex, Text } from '@radix-ui/themes';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
@@ -25,7 +25,7 @@ export const ClaimWinnings = ({ market, onClaimed }: { market: Market; onClaimed
     const winningPoolSnapshotMist = market.winningPoolAtResolution ?? null;
 
 
-    const loadTickets = async () => {
+    const loadTickets = useCallback(async () => {
         if (!current?.address || !packageId) return;
         setLoading(true);
         try {
@@ -64,16 +64,20 @@ export const ClaimWinnings = ({ market, onClaimed }: { market: Market; onClaimed
         } finally {
             setLoading(false);
         }
-    };
+    }, [client, current?.address, packageId, market.id, market.resolution, totalPoolSnapshotMist, winningPoolSnapshotMist]);
 
     useEffect(() => {
         loadTickets();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [current?.address, packageId, market.id, market.resolved, market.resolution]);
+    }, [loadTickets]);
 
     const { transact } = useTransact({
         onSuccess: (result: SuiSignAndExecuteTransactionOutput) => {
-            notification.txSuccess(transactionUrl(explorerUrl, result.digest));
+            const link = explorerUrl ? transactionUrl(explorerUrl, result.digest) : null;
+            if (link) {
+                notification.txSuccess(link);
+            } else {
+                notification.success(`Transaction ${result.digest} submitted.`);
+            }
             onClaimed?.();
             loadTickets();
         },
@@ -94,10 +98,15 @@ export const ClaimWinnings = ({ market, onClaimed }: { market: Market; onClaimed
         <Card>
             <Flex direction="column" gap="3">
                 <Text weight="bold">Claim winnings</Text>
-                <Text size="1" color="gray">
-                    Outcome resolved to {winningLabel}. Total pooled: {totalPoolDisplay} SUI
-                </Text>
-                {winningPoolSnapshotMist === 0 && (
+                <Flex justify="between" align="center">
+                    <Text size="1" color="gray">
+                        Outcome resolved to {winningLabel}. Total pooled: {totalPoolDisplay} SUI
+                    </Text>
+                    <Button size="1" variant="soft" onClick={loadTickets} disabled={loading}>
+                        Refresh tickets
+                    </Button>
+                </Flex>
+                {winningPoolSnapshotMist !== null && winningPoolSnapshotMist === 0 && (
                     <Text color="red" size="1">
                         Winning pool is empty; no payouts available for this outcome.
                     </Text>

@@ -2,6 +2,9 @@ module walymarket::walymarket {
     use sui::coin::Coin;
     use sui::sui::SUI;
     use sui::balance::{Self, Balance};
+    use sui::object::{Self, UID, ID};
+    use sui::transfer;
+    use sui::tx_context::{Self, TxContext};
     use std::string::String;
     use sui::event;
     

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { Button, Card, Flex, Text, TextField } from '@radix-ui/themes';
+import { Button, Card, Flex, Text, TextField, Spinner } from '@radix-ui/themes';
 import useTransact from '@suiware/kit/useTransact';
 import { SuiSignAndExecuteTransactionOutput } from '@mysten/wallet-standard';
 import { Market } from '~~/walymarket/types';
@@ -22,7 +22,12 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
     const explorerUrl = useNetworkVariable(EXPLORER_URL_VARIABLE_NAME);
     const { transact } = useTransact({
         onSuccess: (result: SuiSignAndExecuteTransactionOutput) => {
-            notification.txSuccess(transactionUrl(explorerUrl, result.digest));
+            const link = explorerUrl ? transactionUrl(explorerUrl, result.digest) : null;
+            if (link) {
+                notification.txSuccess(link);
+            } else {
+                notification.success(`Transaction ${result.digest} submitted.`);
+            }
             setPending(false);
             onTrade?.();
         },
@@ -63,7 +68,9 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
         const payoutMist = (mistStake * totalPoolAfter) / winningPoolAfter;
         const payoutSUI = payoutMist / 1_000_000_000;
         const profit = payoutSUI - stake;
-        return { payoutSUI, profit };
+        const yesOddsAfter = simulatedYes / totalPoolAfter;
+        const noOddsAfter = simulatedNo / totalPoolAfter;
+        return { payoutSUI, profit, yesOddsAfter, noOddsAfter };
     }, [selectedOutcome, amountSUI, market.yesPool, market.noPool]);
 
     // Reset selection when market resolves (future-proof; if resolved prop added)
@@ -77,30 +84,119 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
     return (
         <Card size="3">
             <Flex direction="column" gap="4">
-                <Text weight="bold">Place Bet</Text>
-                <Flex gap="2">
-                    <Button style={{ width: '100%' }} variant={selectedOutcome === 'Yes' ? 'solid' : 'outline'} onClick={() => setSelectedOutcome('Yes')}>Yes ({formatPercent(market.yesChance)})</Button>
-                    <Button style={{ width: '100%' }} variant={selectedOutcome === 'No' ? 'solid' : 'outline'} onClick={() => setSelectedOutcome('No')}>No ({formatPercent(market.noChance)})</Button>
-                </Flex>
-                <Flex direction="column" gap="1">
-                    <Text size="1" color="gray">Pool Yes: {(market.yesPool / 1_000_000_000).toFixed(3)} SUI • Pool No: {(market.noPool / 1_000_000_000).toFixed(3)} SUI • Total: {(market.totalPool / 1_000_000_000).toFixed(3)} SUI</Text>
-                </Flex>
+                <Text weight="bold" size="4">Place Bet</Text>
 
-                <TextField.Root
-                    size="3"
-                    placeholder="0.0 SUI"
-                    type="number"
-                    value={amountSUI}
-                    onChange={(e) => setAmountSUI(e.target.value)}
-                />
-
-                {payoutEstimate && (
-                    <Text size="2" color="gray">
-                        Est. payout: {payoutEstimate.payoutSUI.toFixed(4)} SUI (Profit {payoutEstimate.profit >= 0 ? '+' : ''}{payoutEstimate.profit.toFixed(4)} SUI)
-                    </Text>
+                {market.resolved && (
+                    <Card variant="surface" style={{ background: 'rgba(229,72,77,0.1)', border: '1px solid rgba(229,72,77,0.2)' }}>
+                        <Text size="2" color="red" weight="medium">
+                            Market Resolved • Trading Closed
+                        </Text>
+                    </Card>
                 )}
-                <Button size="3" onClick={handleTrade} disabled={market.resolved || !currentAccount || !selectedOutcome || !amountSUI || pending}>
-                    {pending ? 'Submitting...' : `Bet ${amountSUI || '0'} SUI on ${selectedOutcome || '...'}`}
+
+                {!currentAccount && !market.resolved && (
+                    <Card variant="surface" style={{ background: 'rgba(255,200,0,0.1)', border: '1px solid rgba(255,200,0,0.2)' }}>
+                        <Text size="2" weight="medium">
+                            Connect wallet to trade
+                        </Text>
+                    </Card>
+                )}
+
+                <Flex direction="column" gap="2">
+                    <Text size="2" color="gray" weight="medium">Select Outcome</Text>
+                    <Flex gap="2">
+                        <Button
+                            style={{ flex: 1 }}
+                            size="2"
+                            color="green"
+                            variant={selectedOutcome === 'Yes' ? 'solid' : 'soft'}
+                            onClick={() => setSelectedOutcome('Yes')}
+                            disabled={market.resolved || !currentAccount}
+                        >
+                            <Flex align="center" gap="2">
+                                <Text weight="bold">Yes</Text>
+                                <Text size="1">{formatPercent(market.yesChance)}</Text>
+                            </Flex>
+                        </Button>
+                        <Button
+                            style={{ flex: 1 }}
+                            size="2"
+                            color="red"
+                            variant={selectedOutcome === 'No' ? 'solid' : 'soft'}
+                            onClick={() => setSelectedOutcome('No')}
+                            disabled={market.resolved || !currentAccount}
+                        >
+                            <Flex align="center" gap="2">
+                                <Text weight="bold">No</Text>
+                                <Text size="1">{formatPercent(market.noChance)}</Text>
+                            </Flex>
+                        </Button>
+                    </Flex>
+                </Flex>
+
+                <Flex direction="column" gap="2">
+                    <Text size="2" color="gray" weight="medium">Amount (SUI)</Text>
+                    <TextField.Root
+                        size="3"
+                        placeholder="Enter amount..."
+                        type="number"
+                        value={amountSUI}
+                        onChange={(e) => setAmountSUI(e.target.value)}
+                        disabled={market.resolved || !currentAccount || !selectedOutcome}
+                    />
+                    <Flex justify="between" wrap="wrap" gap="1">
+                        <Text size="1" color="gray">Liquidity: {(market.totalPool / 1_000_000_000).toFixed(2)} SUI</Text>
+                        {selectedOutcome && (
+                            <Text size="1" color="gray">
+                                {selectedOutcome} pool: {((selectedOutcome === 'Yes' ? market.yesPool : market.noPool) / 1_000_000_000).toFixed(2)} SUI
+                            </Text>
+                        )}
+                    </Flex>
+                </Flex>
+
+                {payoutEstimate && selectedOutcome && (
+                    <Card variant="surface" style={{ background: 'rgba(70,167,88,0.08)' }}>
+                        <Flex direction="column" gap="2">
+                            <Text size="2" weight="medium">Expected Returns</Text>
+                            <Flex direction="column" gap="1">
+                                <Flex justify="between">
+                                    <Text size="2" color="gray">If {selectedOutcome} wins:</Text>
+                                    <Text size="2" weight="bold">{payoutEstimate.payoutSUI.toFixed(3)} SUI</Text>
+                                </Flex>
+                                <Flex justify="between">
+                                    <Text size="2" color="gray">Profit:</Text>
+                                    <Text size="2" weight="bold" color={payoutEstimate.profit >= 0 ? 'jade' : 'red'}>
+                                        {payoutEstimate.profit >= 0 ? '+' : ''}{payoutEstimate.profit.toFixed(3)} SUI
+                                    </Text>
+                                </Flex>
+                                <Flex justify="between">
+                                    <Text size="1" color="gray">New price:</Text>
+                                    <Text size="1" color="gray">
+                                        {selectedOutcome === 'Yes'
+                                            ? `${(payoutEstimate.yesOddsAfter * 100).toFixed(1)}%`
+                                            : `${(payoutEstimate.noOddsAfter * 100).toFixed(1)}%`}
+                                    </Text>
+                                </Flex>
+                            </Flex>
+                        </Flex>
+                    </Card>
+                )}
+
+                <Button
+                    size="3"
+                    onClick={handleTrade}
+                    disabled={market.resolved || !currentAccount || !selectedOutcome || !amountSUI || pending}
+                    style={{ width: '100%' }}
+                >
+                    {pending ? (
+                        <Flex align="center" gap="2">
+                            <Spinner /> Submitting...
+                        </Flex>
+                    ) : (
+                        selectedOutcome && amountSUI
+                            ? `Bet ${parseFloat(amountSUI).toFixed(2)} SUI on ${selectedOutcome}`
+                            : 'Enter amount to trade'
+                    )}
                 </Button>
             </Flex>
         </Card>
