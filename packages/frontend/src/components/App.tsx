@@ -4,6 +4,9 @@ import '@suiware/kit/main.css'
 import SuiProvider from '@suiware/kit/SuiProvider'
 import { FC, StrictMode } from 'react'
 import IndexPage from '~~/dapp/pages/IndexPage'
+import MarketDetailPage from '~~/walymarket/pages/MarketDetailPage'
+import AdminPage from '~~/walymarket/pages/AdminPage'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { APP_NAME } from '~~/config/main'
 import { getThemeSettings } from '~~/helpers/theme'
 import useNetworkConfig from '~~/hooks/useNetworkConfig'
@@ -26,7 +29,13 @@ const App: FC = () => {
           walletStashedName={APP_NAME}
           themeSettings={themeSettings}
         >
-          <IndexPage />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<IndexPage />} />
+              <Route path="/market/:marketId" element={<MarketDetailPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+            </Routes>
+          </BrowserRouter>
         </SuiProvider>
       </ThemeProvider>
     </StrictMode>

@@ -11,10 +11,10 @@ const Header = () => {
         href="#"
         className="flex flex-col items-center justify-center gap-1 text-sds-dark outline-none hover:no-underline sm:flex-row dark:text-sds-light"
       >
-        <img src={Logo} alt="Logo" className="h-12 w-12" />
-        <div className="pt-1 text-xl sm:text-2xl">
+        <img src={Logo} alt="Logo" className="h-8 mx-4" />
+        {/* <div className="pt-1 text-xl sm:text-2xl">
           {import.meta.env.VITE_APP_NAME}
-        </div>
+        </div> */}
       </Link>
 
       <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
