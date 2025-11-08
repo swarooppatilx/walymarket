@@ -2,9 +2,12 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
 
 export default [
-    { ignores: ["dist", "node_modules"] },
+    {
+        ignores: ["**/dist/**", "**/build/**", "**/.vite/**", "**/node_modules/**"],
+    },
     js.configs.recommended,
     ...tseslint.configs.recommended,
     {
@@ -14,6 +17,10 @@ export default [
                 ecmaVersion: "latest",
                 sourceType: "module",
                 ecmaFeatures: { jsx: true },
+            },
+            globals: {
+                ...globals.browser,
+                ...globals.es2021,
             },
         },
         plugins: {

@@ -73,6 +73,12 @@ Desktop.ini
 *.sublime-project
 *.sublime-workspace
 
+# pnpm
+.pnpm-store/
+
+# Sui Move build output
+packages/contracts/build/
+
 # Environment variables
 .env
 .env.local
@@ -80,3 +86,6 @@ Desktop.ini
 
 # Local configuration files
 config.local.js
+
+#build files
+dist/
