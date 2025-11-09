@@ -1,6 +1,10 @@
 export type Market = {
     id: string;
+    title?: string;
     question: string;
+    description?: string;
+    imageUrl?: string;
+    b?: number;
     yesPool: number;
     noPool: number;
     totalPool: number;

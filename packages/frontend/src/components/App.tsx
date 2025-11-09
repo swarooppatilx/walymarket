@@ -6,6 +6,7 @@ import { FC, StrictMode } from 'react'
 import IndexPage from '~~/dapp/pages/IndexPage'
 import MarketDetailPage from '~~/walymarket/pages/MarketDetailPage'
 import AdminPage from '~~/walymarket/pages/AdminPage'
+import PortfolioPage from '~~/walymarket/pages/PortfolioPage'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { APP_NAME } from '~~/config/main'
 import { getThemeSettings } from '~~/helpers/theme'
@@ -25,7 +26,7 @@ const App: FC = () => {
         <SuiProvider
           customNetworkConfig={networkConfig}
           defaultNetwork={ENetwork.LOCALNET}
-          walletAutoConnect={false}
+          walletAutoConnect={true}
           walletStashedName={APP_NAME}
           themeSettings={themeSettings}
         >
@@ -34,6 +35,7 @@ const App: FC = () => {
               <Route path="/" element={<IndexPage />} />
               <Route path="/market/:marketId" element={<MarketDetailPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
             </Routes>
           </BrowserRouter>
         </SuiProvider>

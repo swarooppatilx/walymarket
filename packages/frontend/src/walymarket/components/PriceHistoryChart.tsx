@@ -122,6 +122,8 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
                         {/* Y-axis labels */}
                         <text x={padding.left - 8} y={padding.top + 4} fontSize="10" fill="#94a3b8" textAnchor="end">100%</text>
                         <text x={padding.left - 8} y={size.height - padding.bottom + 4} fontSize="10" fill="#94a3b8" textAnchor="end">0%</text>
+                        {/* Chance labels mid-grid */}
+                        <text x={padding.left - 8} y={padding.top + (size.height - padding.top - padding.bottom) * 0.5 + 4} fontSize="10" fill="#64748b" textAnchor="end">50%</text>
                         {/* No/Yes paths */}
                         <path d={paths.no} stroke="#e5484d" fill="none" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                         <path d={paths.yes} stroke="#46a758" fill="none" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />

@@ -12,6 +12,19 @@ export function formatPercent(value: number | null | undefined, digits = 1): str
     return `${(value * 100).toFixed(digits)}%`;
 }
 
+// Format LMSR instantaneous price (0..1) as cents (0..100¢)
+export function formatCents(price: number | null | undefined, digits = 0): string {
+    if (price == null || !isFinite(price)) return '—';
+    const cents = Math.max(0, Math.min(100, price * 100));
+    return `${cents.toFixed(digits)}¢`;
+}
+
+// Optionally show price in SUI given payout of 1 SUI per share
+export function formatPriceSui(price: number | null | undefined, digits = 3): string {
+    if (price == null || !isFinite(price)) return '—';
+    return `${price.toFixed(digits)} SUI`;
+}
+
 export function shortId(id: string, head = 6, tail = 4): string {
     if (!id) return '';
     if (id.length <= head + tail) return id;
