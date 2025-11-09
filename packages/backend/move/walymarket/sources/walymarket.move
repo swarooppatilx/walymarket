@@ -17,7 +17,7 @@ module walymarket::walymarket {
     const EZeroWinningPool: u64 = 6;
 
     // Hardcoded admin address - use @0x prefix for address literals
-    const ADMIN: address = @0xfb33d1fd880fdf3fc8126610a8f43d1dd0970cd51bf9bddcb7142a3e486ea668;
+    const ADMIN: address = @0xf6c4debedcb22dde758448e4d37dfd1bad64e8e152d1c34571cf80dd1e15dae5;
     // Admin capability
     public struct AdminCap has key, store { 
         id: UID 
