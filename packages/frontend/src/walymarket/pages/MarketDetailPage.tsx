@@ -6,7 +6,9 @@ import { TradeWidget } from '~~/walymarket/components/TradeWidget';
 import { ClaimWinnings } from '~~/walymarket/components/ClaimWinnings';
 import { UserPositions } from '~~/walymarket/components/UserPositions';
 import PriceHistoryChart from '~~/walymarket/components/PriceHistoryChart';
-import { formatSui, formatPercent } from '~~/walymarket/helpers/format';
+import TopHolders from '~~/walymarket/components/TopHolders';
+import MarketActivity from '~~/walymarket/components/MarketActivity';
+import { formatSui, formatPercent, formatCents } from '~~/walymarket/helpers/format';
 import Layout from '~~/components/layout/Layout';
 
 const MarketDetailPage = () => {
@@ -39,6 +41,8 @@ const MarketDetailPage = () => {
     const statusColor = market.resolved ? 'jade' : 'gray';
     const yesPercent = formatPercent(market.yesChance);
     const noPercent = formatPercent(market.noChance);
+    const yesPrice = formatCents(market.yesChance);
+    const noPrice = formatCents(market.noChance);
     const totalAtResolution = market.totalAtResolution ?? market.totalPool;
 
     return (
@@ -69,7 +73,7 @@ const MarketDetailPage = () => {
                                         <Flex justify="between" align="center">
                                             <Text size="2" color="gray">Yes</Text>
                                             <Flex align="center" gap="2">
-                                                <Text size="2" weight="medium">{yesPercent}</Text>
+                                                <Text size="2" weight="medium">{yesPercent} • {yesPrice}</Text>
                                                 <Text size="1" color="gray">({formatSui(market.yesPool)} SUI)</Text>
                                             </Flex>
                                         </Flex>
@@ -77,7 +81,7 @@ const MarketDetailPage = () => {
                                         <Flex justify="between" align="center">
                                             <Text size="2" color="gray">No</Text>
                                             <Flex align="center" gap="2">
-                                                <Text size="2" weight="medium">{noPercent}</Text>
+                                                <Text size="2" weight="medium">{noPercent} • {noPrice}</Text>
                                                 <Text size="1" color="gray">({formatSui(market.noPool)} SUI)</Text>
                                             </Flex>
                                         </Flex>
@@ -101,6 +105,12 @@ const MarketDetailPage = () => {
 
                             {/* User positions */}
                             <UserPositions market={market} onAction={refetch} />
+
+                            {/* Top holders & activity */}
+                            <Flex direction="column" gap="4">
+                                <TopHolders marketId={market.id} resolution={market.resolution} />
+                                <MarketActivity marketId={market.id} resolution={market.resolution} />
+                            </Flex>
                         </Flex>
                     </Box>
 

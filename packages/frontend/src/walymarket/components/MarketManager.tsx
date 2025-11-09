@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, Flex, Text } from '@radix-ui/themes';
+import { Button, Card, Flex, Text, Tooltip, Separator, Avatar, Badge } from '@radix-ui/themes';
 import useTransact from '@suiware/kit/useTransact';
 import { SuiSignAndExecuteTransactionOutput } from '@mysten/wallet-standard';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
@@ -40,37 +40,70 @@ export const MarketManager = ({ markets, onResolved }: { markets: Market[]; onRe
     };
 
     return (
-        <Card>
+        <Card className="market-card-sds" style={{ padding: 16 }}>
             <Flex direction="column" gap="3">
-                <Text weight="bold">Active Markets</Text>
+                <Flex justify="between" align="center" wrap="wrap" gap="2">
+                    <Text weight="bold" style={{ fontSize: 16 }}>Active Markets</Text>
+                    <Text size="1" color="gray">Resolve once outcome is certain. This action is final.</Text>
+                </Flex>
+                <Separator my="2" size="4" />
                 {markets.length === 0 && <Text color="gray">No active markets.</Text>}
-                {markets.map((m) => (
-                    <Flex key={m.id} align="center" justify="between" className="border-t pt-2 mt-2">
-                        <Flex direction="column" gap="1" style={{ maxWidth: '65%' }}>
-                            <Text>{m.question}</Text>
-                            <Text size="1" color="gray">
-                                Yes {(m.yesChance * 100).toFixed(1)}% ({(m.yesPool / 1_000_000_000).toFixed(2)} SUI) • No {(m.noChance * 100).toFixed(1)}% ({(m.noPool / 1_000_000_000).toFixed(2)} SUI)
-                            </Text>
-                        </Flex>
-                        <Flex gap="2">
-                            <Button
-                                variant="solid"
-                                onClick={() => handleResolve(m.id, true)}
-                                disabled={pendingMarketId === m.id}
-                            >
-                                {pendingMarketId === m.id ? 'Resolving...' : 'Resolve YES'}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => handleResolve(m.id, false)}
-                                disabled={pendingMarketId === m.id}
-                            >
-                                {pendingMarketId === m.id ? 'Resolving...' : 'Resolve NO'}
-                            </Button>
-                        </Flex>
-                    </Flex>
-                ))}
+                <div className="grid gap-3 md:grid-cols-2">
+                    {markets.map((m) => (
+                        <Card key={m.id} className="market-card-sds" style={{ padding: 14 }}>
+                            <Flex align="start" gap="3" wrap="wrap" justify="between">
+                                <Flex align="start" gap="3" style={{ minWidth: '260px', flex: '1 1 360px' }}>
+                                    {m.imageUrl ? (
+                                        <img src={m.imageUrl} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.15)' }} />
+                                    ) : (
+                                        <Avatar fallback="M" size="4" radius="medium" />
+                                    )}
+                                    <Flex direction="column" gap="2">
+                                        <Text weight="bold">{m.title || m.question}</Text>
+                                        {m as any && (
+                                            <Text size="1" color="gray" className="line-clamp-2">
+                                                {/* optional description if present */}
+                                                {((m as any).description as string | undefined) || ''}
+                                            </Text>
+                                        )}
+                                        <Flex gap="2" align="center" wrap="wrap">
+                                            <Badge variant="soft" color="green">YES {(m.yesChance * 100).toFixed(1)}%</Badge>
+                                            <Badge variant="soft" color="red">NO {(m.noChance * 100).toFixed(1)}%</Badge>
+                                            <Text size="1" color="gray">Y {formatPool(m.yesPool)} · N {formatPool(m.noPool)}</Text>
+                                        </Flex>
+                                    </Flex>
+                                </Flex>
+                                <Flex gap="2" align="center">
+                                    <Tooltip content="Resolve YES">
+                                        <Button
+                                            className="btn-sds-ghost"
+                                            onClick={() => handleResolve(m.id, true)}
+                                            disabled={pendingMarketId === m.id}
+                                            size="1"
+                                        >
+                                            {pendingMarketId === m.id ? 'Resolving…' : 'Resolve YES'}
+                                        </Button>
+                                    </Tooltip>
+                                    <Tooltip content="Resolve NO">
+                                        <Button
+                                            className="btn-sds-ghost"
+                                            onClick={() => handleResolve(m.id, false)}
+                                            disabled={pendingMarketId === m.id}
+                                            size="1"
+                                        >
+                                            {pendingMarketId === m.id ? 'Resolving…' : 'Resolve NO'}
+                                        </Button>
+                                    </Tooltip>
+                                </Flex>
+                            </Flex>
+                        </Card>
+                    ))}
+                </div>
             </Flex>
         </Card>
     );
 };
+
+function formatPool(v: number): string {
+    return (v / 1_000_000_000).toFixed(2) + ' SUI';
+}

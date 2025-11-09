@@ -25,6 +25,7 @@ Most of the Sui starters I found were either very basic or one-sided (frontend o
 - **Frontend Deployment**: [Firebase](https://sui-dapp-starter.dev/docs/frontend/deployment/firebase), [Walrus Sites](https://sui-dapp-starter.dev/docs/frontend/deployment/walrus), [Arweave](https://sui-dapp-starter.dev/docs/frontend/deployment/arweave)
 - **One-liner Install**: Just `pnpm create sui-dapp@latest`
 - **[Demo app](https://demo.sui-dapp-starter.dev/)**: Default Greeting (React) template
+- **Prediction Markets (LMSR)**: Experimental module set (Market, MarketFactory, OutcomeToken, CollateralVault, Lmsr) with metadata (title, description, image) and UI for creation, trading, resolution.
 
 ## Prerequisites
 
@@ -77,6 +78,27 @@ pnpm localnet:deploy
 ```
 
 _This command skips dependency verifications to prevent dependency version mismatch issues, which are caused by local and remote Sui version mismatch. The deploy commands for devnet, testnet and mainnet do perform such verifications._
+
+### Prediction Market Module (Experimental)
+
+After modifying Move structs (e.g. adding `title`, `description`, `image_url` to `Market`) you MUST redeploy the package because object layouts and event schemas change. Existing markets created under the old layout will not be compatible with the new struct definitions.
+
+Creation flow (frontend Admin page):
+- Fill Title (required), Description (optional), Image URL (optional), Liquidity `b`, Expiry.
+- Submit: calls `market_factory::create_permissionless(title, description, image_url, b, expiry)`.
+- Market object stores LMSR state (`q_yes`, `q_no`, `b`) plus metadata.
+
+Trading flow:
+- Users spend SUI; binary search approximates shares purchasable given payment with LMSR cost estimation.
+- Emits `Traded` event with shares and cost.
+
+Resolution & Redemption:
+- Admin resolves market via YES/NO; emits `MarketResolved`.
+- Holders redeem winning `OutcomeToken` for collateral 1:1; emits `Redeemed`.
+
+Upgrade Note:
+- Adding/removing fields to `Market` or event structs is a breaking change; version your package or deploy anew.
+- Frontend hooks fall back to legacy `question` if `title` missing.
 
 #### 3. Switch to the local network in your browser wallet settings.
 

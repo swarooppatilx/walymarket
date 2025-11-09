@@ -33,9 +33,10 @@ export const MarketCard = ({ market }: { market: Market }) => {
         <Card
             size="2"
             className={clsx(
-                'market-card cursor-pointer min-h-[200px] rounded-xl border border-white/10 dark:border-white/10 bg-white/5 dark:bg-slate-900/40',
-                'transition-transform hover:-translate-y-0.5 hover:shadow-lg'
+                'market-card-sds cursor-pointer min-h-[200px]',
+                'transition-transform'
             )}
+            style={{ padding: 16 }}
         >
             <Flex direction="column" gap="3" justify="between" className="h-full">
                 <Flex direction="column" gap="2">
@@ -43,9 +44,23 @@ export const MarketCard = ({ market }: { market: Market }) => {
                         <Badge color={color} size="2">{status}</Badge>
                         <Text size="1" color="gray">{total} SUI</Text>
                     </Flex>
-                    <Link to={`/market/${market.id}`} className="no-underline grow">
-                        <Text weight="bold" size="3" className="line-clamp-2 min-h-12">{market.question}</Text>
-                    </Link>
+                    <Flex align="start" gap="3">
+                        {market.imageUrl && (
+                            <img
+                                src={market.imageUrl}
+                                alt=""
+                                style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)' }}
+                            />
+                        )}
+                        <Flex direction="column" gap="1" className="grow">
+                            <Link to={`/market/${market.id}`} className="no-underline">
+                                <Text weight="bold" size="3" className="line-clamp-2 min-h-12">{market.title || market.question}</Text>
+                            </Link>
+                            {market.description && (
+                                <Text size="1" color="gray" className="line-clamp-2">{market.description}</Text>
+                            )}
+                        </Flex>
+                    </Flex>
                     <Flex direction="column" gap="2">
                         <Flex
                             justify="between"

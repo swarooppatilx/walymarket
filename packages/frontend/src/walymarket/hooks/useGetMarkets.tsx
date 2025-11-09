@@ -2,14 +2,9 @@ import { useSuiClient } from '@mysten/dapp-kit';
 import { useCallback, useEffect, useState } from 'react';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
 import { CONTRACT_PACKAGE_VARIABLE_NAME } from '~~/config/network';
-import { fullStructName } from '~~/helpers/network';
 import { Market } from '~~/walymarket/types';
 
-const parseBalance = (obj: any): number => {
-    if (!obj?.fields) return 0;
-    const raw = obj.fields.value ?? obj.fields.balance ?? 0;
-    return typeof raw === 'string' ? parseInt(raw, 10) : Number(raw);
-};
+// Legacy parseBalance removed (unused in LMSR v2).
 
 const parseU64Field = (value: any): number => {
     if (value == null) return 0;
@@ -20,21 +15,28 @@ const parseFromObjectResponse = (resp: any): Market | undefined => {
     if (!resp?.data) return undefined;
     const fields = resp.data.content?.dataType === 'moveObject' ? resp.data.content.fields : undefined;
     if (!fields) return undefined;
-    const yesPool = parseBalance(fields.yes_pool);
-    const noPool = parseBalance(fields.no_pool);
+    // v2 market fields (LMSR): q_yes, q_no
+    const yesPool = parseU64Field(fields.q_yes ?? 0);
+    const noPool = parseU64Field(fields.q_no ?? 0);
+    const b = parseU64Field(fields.b ?? 0) || 1;
     const totalPool = yesPool + noPool;
     const resolved = !!fields.resolved;
     const resolution = resolved ? Boolean(fields.resolution) : null;
-    const totalAtResolution = resolved ? parseU64Field(fields.total_at_resolution) : null;
-    const winningPoolAtResolution = resolved ? parseU64Field(fields.winning_pool_at_resolution) : null;
+    const totalAtResolution = null;
+    const winningPoolAtResolution = null;
+    const pYes = lmsrYes(yesPool, noPool, b);
     return {
         id: resp.data.objectId,
-        question: fields.question ?? '',
+        title: fields.title ?? undefined,
+        question: (fields.title ?? fields.question ?? '') as string,
+        description: fields.description ?? undefined,
+        imageUrl: fields.image_url ?? undefined,
         yesPool,
         noPool,
         totalPool,
-        yesChance: totalPool > 0 ? yesPool / totalPool : 0.5,
-        noChance: totalPool > 0 ? noPool / totalPool : 0.5,
+        b,
+        yesChance: pYes,
+        noChance: 1 - pYes,
         resolved,
         resolution,
         totalAtResolution,
@@ -64,7 +66,8 @@ export const useGetMarkets = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const eventType = fullStructName(packageId, 'MarketCreated');
+            // New module name for v2 markets
+            const eventType = `${packageId}::market::MarketCreated` as const;
             const events = await client.queryEvents({
                 query: { MoveEventType: eventType },
                 limit: 100,
@@ -113,3 +116,16 @@ export const useGetMarkets = () => {
         refetch: load,
     };
 };
+
+// Reuse client-side LMSR for initial list pricing.
+function lmsrYes(qy: number, qn: number, b: number): number {
+    if (!isFinite(qy) || !isFinite(qn) || !isFinite(b) || b <= 0) return 0.5;
+    const y = qy / b;
+    const n = qn / b;
+    const m = Math.max(y, n);
+    const ey = Math.exp(y - m);
+    const en = Math.exp(n - m);
+    const denom = ey + en;
+    if (denom <= 0) return 0.5;
+    return ey / denom;
+}

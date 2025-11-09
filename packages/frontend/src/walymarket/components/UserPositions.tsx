@@ -32,25 +32,42 @@ export const UserPositions = ({ market, onAction }: { market: Market; onAction?:
         if (!current?.address || !packageId) return;
         setLoading(true);
         try {
-            const type = fullStructName(packageId, 'ShareTicket');
-            const res = await client.getOwnedObjects({
+            // Legacy tickets
+            const legacyType = fullStructName(packageId, 'ShareTicket');
+            const legacyRes = await client.getOwnedObjects({
                 owner: current.address,
-                filter: { StructType: type },
+                filter: { StructType: legacyType },
                 options: { showContent: true },
             });
-            const parsed = (res.data || []).map((o: any) => {
-                const fields = o.data?.content?.fields;
-                if (!fields) return undefined;
+            const legacy = (legacyRes.data || []).map((o: any) => {
+                const f = o.data?.content?.fields;
+                if (!f) return null;
                 return {
-                    id: o.data.objectId as string,
-                    marketId: fields.market_id as string,
-                    outcome: Boolean(fields.outcome),
-                    amountPaid: typeof fields.amount_paid === 'string' ? parseInt(fields.amount_paid, 10) : Number(fields.amount_paid),
+                    id: o.data.objectId,
+                    marketId: f.market_id,
+                    outcome: Boolean(f.outcome),
+                    amountPaid: Number(f.amount_paid),
                 } as TicketPosition;
             }).filter(Boolean) as TicketPosition[];
-            setTickets(parsed.filter(t => t.marketId === market.id));
+
+            // V2 outcome tokens
+            const outcomeType = `${packageId}::outcome_token::OutcomeToken` as const;
+            const outcomeRes = await client.getOwnedObjects({ owner: current.address, options: { showContent: true } });
+            const v2 = (outcomeRes.data || []).map((o: any) => {
+                const c = o.data?.content;
+                if (c?.dataType !== 'moveObject' || c.type !== outcomeType) return null;
+                const f = c.fields;
+                return {
+                    id: o.data.objectId,
+                    marketId: f.market_id,
+                    outcome: Boolean(f.yes),
+                    amountPaid: Number(f.amount),
+                } as TicketPosition;
+            }).filter(Boolean) as TicketPosition[];
+
+            const combined = [...legacy, ...v2].filter(t => t.marketId === market.id);
+            setTickets(combined);
         } catch (e) {
-            // eslint-disable-next-line no-console
             console.error(e);
         } finally {
             setLoading(false);
