@@ -1,5 +1,4 @@
 import { Toaster } from 'react-hot-toast'
-import AnimatedBackground from '~~/components/AnimatedBackground'
 
 const Extra = () => {
   return (
