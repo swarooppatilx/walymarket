@@ -1,4 +1,4 @@
-import { Card, Flex, Table, Text } from '@radix-ui/themes';
+import UICard from '~~/components/ui/Card';
 import useMarketActivity from '~~/walymarket/hooks/useMarketActivity';
 import { shortId, formatSui } from '~~/walymarket/helpers/format';
 
@@ -6,49 +6,51 @@ export const MarketActivity = ({ marketId, resolution }: { marketId: string; res
     const { events, loading, error, reload } = useMarketActivity(marketId, resolution);
 
     return (
-        <Card>
-            <Flex direction="column" gap="3">
-                <Flex justify="between" align="center">
-                    <Text weight="bold" size="3">Recent Activity</Text>
-                    <Text size="1" color="gray" className="cursor-pointer" onClick={reload}>↻</Text>
-                </Flex>
-                {loading && <Text size="2" color="gray">Loading activity…</Text>}
-                {error && <Text size="2" color="red">Failed to load activity</Text>}
-                {!loading && !error && events.length === 0 && <Text size="2" color="gray">No recent activity</Text>}
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-base font-bold text-white">Recent Activity</h3>
+                    <button className="text-xs text-gray-400 cursor-pointer hover:text-white" onClick={reload}>↻</button>
+                </div>
+                {loading && <p className="text-sm text-gray-400">Loading activity…</p>}
+                {error && <p className="text-sm text-red-400">Failed to load activity</p>}
+                {!loading && !error && events.length === 0 && <p className="text-sm text-gray-400">No recent activity</p>}
                 {!loading && !error && events.length > 0 && (
-                    <Table.Root variant="surface">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.ColumnHeaderCell>Time</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>Actor</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>Action</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>Details</Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {events.slice(0, 25).map((e, idx) => (
-                                <Table.Row key={idx}>
-                                    <Table.Cell><Text size="2">{new Date(e.ts).toLocaleTimeString()}</Text></Table.Cell>
-                                    <Table.Cell><Text size="2">{shortId(e.address)}</Text></Table.Cell>
-                                    <Table.Cell>
-                                        <Text size="2" color={e.kind === 'TRADE' ? (e.buy ? (e.yes ? 'jade' : 'crimson') : 'gray') : 'gray'}>
-                                            {e.kind === 'TRADE' ? (e.buy ? (e.yes ? 'Buy YES' : 'Buy NO') : (e.yes ? 'Sell YES' : 'Sell NO')) : 'Redeem'}
-                                        </Text>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        {e.kind === 'TRADE' ? (
-                                            <Text size="2">{e.shares} shares • {formatSui(e.cost)} SUI</Text>
-                                        ) : (
-                                            <Text size="2">{formatSui(e.payout)} SUI</Text>
-                                        )}
-                                    </Table.Cell>
-                                </Table.Row>
-                            ))}
-                        </Table.Body>
-                    </Table.Root>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="border-b border-[#535353]">
+                                <tr>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Time</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Actor</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Action</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {events.slice(0, 25).map((e, idx) => (
+                                    <tr key={idx} className="border-b border-[#535353]/50">
+                                        <td className="py-2 text-white">{new Date(e.ts).toLocaleTimeString()}</td>
+                                        <td className="py-2 text-white">{shortId(e.address)}</td>
+                                        <td className="py-2">
+                                            <span className={e.kind === 'TRADE' ? (e.buy ? (e.yes ? 'text-emerald-400' : 'text-rose-400') : 'text-gray-400') : 'text-gray-400'}>
+                                                {e.kind === 'TRADE' ? (e.buy ? (e.yes ? 'Buy YES' : 'Buy NO') : (e.yes ? 'Sell YES' : 'Sell NO')) : 'Redeem'}
+                                            </span>
+                                        </td>
+                                        <td className="py-2 text-white">
+                                            {e.kind === 'TRADE' ? (
+                                                <span>{e.shares} shares • {formatSui(e.cost)} SUI</span>
+                                            ) : (
+                                                <span>{formatSui(e.payout)} SUI</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };
 

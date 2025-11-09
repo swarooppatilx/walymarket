@@ -1,55 +1,60 @@
 import { FC } from 'react'
-import { Card, Flex, Text, TextField, Select, Container } from '@radix-ui/themes'
+import UICard from '~~/components/ui/Card'
+import UIInput from '~~/components/ui/Input'
+import UISelect from '~~/components/ui/Select'
 import Layout from '~~/components/layout/Layout'
 import NetworkSupportChecker from '../../components/NetworkSupportChecker'
-// import { MarketList } from '~~/walymarket/components/MarketList'
 import MarketGrid from '~~/walymarket/components/MarketGrid'
 import CategoryNav from '~~/walymarket/components/CategoryNav'
 import { useGetMarkets } from '~~/walymarket/hooks/useGetMarkets'
 import useMarketFilters from '~~/walymarket/hooks/useMarketFilters'
-// import Loading from '~~/components/Loading'
 
 const IndexPage: FC = () => {
   const { markets, resolvedMarkets, isLoading, error } = useGetMarkets()
   const { query, setQuery, sort, setSort, category, setCategory, filtered } = useMarketFilters(markets)
   const showingResolvedCategory = category === 'Resolved'
+  
   return (
     <Layout>
       <NetworkSupportChecker />
-      <Container size="4" py="6">
-        <Flex direction="column" gap="6">
+      <div className="max-w-7xl mx-auto w-full px-6 py-6">
+        <div className="flex flex-col gap-6">
           {error && (
-            <Card>
-              <Text color="red">Failed to load markets: {error.message}</Text>
-            </Card>
+            <UICard className="p-4 border-red-500/20 bg-red-500/10">
+              <p className="text-red-400">Failed to load markets: {error.message}</p>
+            </UICard>
           )}
-          <Card size="3">
-            <Flex direction="column" gap="4">
+          
+          <UICard className="p-4">
+            <div className="flex flex-col gap-4">
               <CategoryNav value={category} onChange={setCategory} />
-              <Flex gap="3" wrap="wrap" align="center">
-                <TextField.Root
-                  placeholder="Search markets..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search markets by question"
-                  size="3"
-                  style={{ flex: '1 1 280px' }}
-                />
-                <Select.Root value={sort} onValueChange={(v) => setSort(v as any)}>
-                  <Select.Trigger aria-label="Sort markets" style={{ minWidth: 180 }} />
-                  <Select.Content>
-                    <Select.Item value="recent">Most Recent</Select.Item>
-                    <Select.Item value="liquidity">Highest Liquidity</Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </Flex>
-            </Flex>
-          </Card>
-          <Flex direction="column" gap="4">
+              <div className="flex gap-3 flex-wrap items-center">
+                <div className="flex-1 min-w-[280px]">
+                  <UIInput
+                    placeholder="Search markets..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    aria-label="Search markets by question"
+                  />
+                </div>
+                <UISelect
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as any)}
+                  className="min-w-[180px]"
+                  aria-label="Sort markets"
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="liquidity">Highest Liquidity</option>
+                </UISelect>
+              </div>
+            </div>
+          </UICard>
+          
+          <div className="flex flex-col gap-4">
             <MarketGrid markets={showingResolvedCategory ? resolvedMarkets : filtered} isLoading={isLoading} />
-          </Flex>
-        </Flex>
-      </Container>
+          </div>
+        </div>
+      </div>
     </Layout>
   )
 }

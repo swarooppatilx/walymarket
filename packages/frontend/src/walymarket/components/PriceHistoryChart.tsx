@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Card, Flex, SegmentedControl, Text } from '@radix-ui/themes';
+import UICard from '~~/components/ui/Card';
 import { formatPercent, formatTime } from '~~/walymarket/helpers/format';
 import usePriceHistory, { PricePoint, Timeframe } from '~~/walymarket/hooks/usePriceHistory';
 
@@ -66,32 +66,38 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
     const currentNo = last ? formatPercent(last.no) : '—';
 
     return (
-        <Card className="border border-white/10 bg-white/5 dark:bg-slate-900/40">
-            <Flex direction="column" gap="3">
-                <Flex justify="between" align="center" wrap="wrap" gap="3">
-                    <Text weight="bold" size="3">Price History</Text>
-                    <SegmentedControl.Root value={tf} onValueChange={(v) => setTf(v as Timeframe)} size="1">
-                        <SegmentedControl.Item value="1H">1H</SegmentedControl.Item>
-                        <SegmentedControl.Item value="24H">24H</SegmentedControl.Item>
-                        <SegmentedControl.Item value="7D">7D</SegmentedControl.Item>
-                        <SegmentedControl.Item value="1M">1M</SegmentedControl.Item>
-                        <SegmentedControl.Item value="ALL">ALL</SegmentedControl.Item>
-                    </SegmentedControl.Root>
-                </Flex>
-                <Flex align="center" gap="3">
-                    <Flex align="center" gap="1">
-                        <div style={{ width: 12, height: 12, background: '#46a758', borderRadius: 2 }} />
-                        <Text size="2" weight="medium">Yes {currentYes}</Text>
-                    </Flex>
-                    <Flex align="center" gap="1">
-                        <div style={{ width: 12, height: 12, background: '#e5484d', borderRadius: 2 }} />
-                        <Text size="2" weight="medium">No {currentNo}</Text>
-                    </Flex>
-                </Flex>
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                    <h3 className="text-base font-bold text-white">Price History</h3>
+                    <div className="flex gap-1 rounded-md border border-[#535353] bg-[#1a1a1a] p-1">
+                        {(['1H', '24H', '7D', '1M', 'ALL'] as Timeframe[]).map((t) => (
+                            <button
+                                key={t}
+                                onClick={() => setTf(t)}
+                                className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+                                    tf === t ? 'bg-[#B6F34E] text-black' : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+                        <span className="text-sm font-medium text-white">Yes {currentYes}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded-sm bg-rose-500" />
+                        <span className="text-sm font-medium text-white">No {currentNo}</span>
+                    </div>
+                </div>
                 {!loading && !error && points.length === 0 && (
-                    <Flex justify="center" align="center" className="h-[240px] rounded-lg bg-white/5 dark:bg-slate-900/40">
-                        <Text color="gray" size="2">No trading history yet</Text>
-                    </Flex>
+                    <div className="flex justify-center items-center h-[240px] rounded-lg bg-[#1a1a1a]">
+                        <p className="text-gray-400 text-sm">No trading history yet</p>
+                    </div>
                 )}
                 {!loading && !error && points.length > 0 && (
                     <svg
@@ -137,22 +143,22 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
                     </svg>
                 )}
                 {hover && (
-                    <Flex justify="center" className="rounded-md bg-white/10 px-2 py-1">
-                        <Text size="1" color="gray">{formatTime(hover.p.ts)} • Yes {formatPercent(hover.p.yes)} • No {formatPercent(hover.p.no)}</Text>
-                    </Flex>
+                    <div className="flex justify-center rounded-md bg-white/10 px-2 py-1">
+                        <span className="text-xs text-gray-400">{formatTime(hover.p.ts)} • Yes {formatPercent(hover.p.yes)} • No {formatPercent(hover.p.no)}</span>
+                    </div>
                 )}
                 {loading && (
-                    <Flex justify="center" align="center" className="h-[240px]">
-                        <Text color="gray" size="2">Loading history…</Text>
-                    </Flex>
+                    <div className="flex justify-center items-center h-[240px]">
+                        <p className="text-gray-400 text-sm">Loading history…</p>
+                    </div>
                 )}
                 {error && (
-                    <Flex justify="center" align="center" className="h-[240px]">
-                        <Text color="red" size="2">Failed to load history</Text>
-                    </Flex>
+                    <div className="flex justify-center items-center h-[240px]">
+                        <p className="text-red-400 text-sm">Failed to load history</p>
+                    </div>
                 )}
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };
 

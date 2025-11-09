@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Card, Flex, Text, Button } from '@radix-ui/themes';
+import UICard from '~~/components/ui/Card';
+import UIButton from '~~/components/ui/Button';
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
 import { CONTRACT_PACKAGE_VARIABLE_NAME, EXPLORER_URL_VARIABLE_NAME } from '~~/config/network';
@@ -120,46 +121,62 @@ export const UserPositions = ({ market, onAction }: { market: Market; onAction?:
     if (!current) return null;
 
     return (
-        <Card>
-            <Flex direction="column" gap="3">
-                <Flex justify="between" align="center" wrap="wrap" gap="2">
-                    <Text weight="bold">Your Positions</Text>
-                    <Button size="1" variant="soft" onClick={load} disabled={loading}>{loading ? 'Loading…' : 'Refresh'}</Button>
-                </Flex>
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                    <h3 className="text-base font-bold text-white">Your Positions</h3>
+                    <UIButton size="sm" variant="ghost" onClick={load} disabled={loading}>
+                        {loading ? 'Loading…' : 'Refresh'}
+                    </UIButton>
+                </div>
+
                 {tickets.length === 0 && !loading && (
-                    <Text color="gray" size="1">You have no tickets for this market yet.</Text>
+                    <p className="text-sm text-gray-400">You have no tickets for this market yet.</p>
                 )}
-                {loading && <Text color="gray" size="1">Loading tickets…</Text>}
+                {loading && <p className="text-sm text-gray-400">Loading tickets…</p>}
+
                 {!loading && tickets.length > 0 && (
-                    <Flex direction="column" gap="2">
+                    <div className="flex flex-col gap-2">
                         {enriched.map(t => (
-                            <Flex key={t.id} justify="between" align="center" className="border-t pt-2 mt-2" wrap="wrap" gap="2">
-                                <Flex direction="column" gap="1">
-                                    <Text size="2">{shortId(t.id)} • Outcome {t.outcome ? 'YES' : 'NO'}</Text>
-                                    <Text size="1" color="gray">Stake {formatSui(t.amountPaid)} SUI • Multiplier {t.multiplier.toFixed(2)}× • Projected Payout {formatSui(t.projectedPayout)} SUI</Text>
-                                </Flex>
+                            <div key={t.id} className="flex justify-between items-center border-t border-[#535353] pt-2 mt-2 flex-wrap gap-2">
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-sm text-white">{shortId(t.id)} • Outcome {t.outcome ? 'YES' : 'NO'}</p>
+                                    <p className="text-xs text-gray-400">
+                                        Stake {formatSui(t.amountPaid)} SUI • Multiplier {t.multiplier.toFixed(2)}× • Projected Payout {formatSui(t.projectedPayout)} SUI
+                                    </p>
+                                </div>
                                 {market.resolved && market.resolution != null && t.outcome === market.resolution && (
-                                    <Button size="1" onClick={() => {
+                                    <UIButton size="sm" onClick={() => {
                                         const single = prepareClaimWinningsTx(packageId!, market.id, t.id);
                                         transact(single);
-                                    }}>Claim</Button>
+                                    }}>
+                                        Claim
+                                    </UIButton>
                                 )}
-                            </Flex>
-                        ))}
-                        <Card asChild>
-                            <div>
-                                <Text size="1" color="gray">Total stake {formatSui(totalStakeMist)} SUI • Total projected payout {formatSui(totalProjectedPayoutMist)} SUI</Text>
                             </div>
-                        </Card>
+                        ))}
+                        
+                        <UICard className="p-3 mt-2">
+                            <p className="text-xs text-gray-400">
+                                Total stake {formatSui(totalStakeMist)} SUI • Total projected payout {formatSui(totalProjectedPayoutMist)} SUI
+                            </p>
+                        </UICard>
+
                         {market.resolved && market.resolution != null && enriched.filter(t => t.outcome === market.resolution).length > 1 && (
-                            <Button size="2" variant="solid" color="jade" disabled={claimingAll} onClick={claimAll}>
+                            <UIButton
+                                variant="primary"
+                                className="w-full bg-[#B6F34E] hover:bg-[#9ED93A] text-black"
+                                disabled={claimingAll}
+                                loading={claimingAll}
+                                onClick={claimAll}
+                            >
                                 {claimingAll ? 'Claiming…' : 'Claim All Winning Tickets'}
-                            </Button>
+                            </UIButton>
                         )}
-                    </Flex>
+                    </div>
                 )}
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };
 
