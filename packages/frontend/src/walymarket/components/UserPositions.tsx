@@ -165,7 +165,7 @@ export const UserPositions = ({ market, onAction }: { market: Market; onAction?:
                         {market.resolved && market.resolution != null && enriched.filter(t => t.outcome === market.resolution).length > 1 && (
                             <UIButton
                                 variant="primary"
-                                className="w-full bg-emerald-500 hover:bg-emerald-400"
+                                className="w-full bg-[#B6F34E] hover:bg-[#9ED93A] text-black"
                                 disabled={claimingAll}
                                 loading={claimingAll}
                                 onClick={claimAll}

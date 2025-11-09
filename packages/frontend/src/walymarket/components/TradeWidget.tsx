@@ -203,7 +203,7 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                     <div className="grid grid-cols-2 gap-2">
                         <UIButton
                             variant={selectedOutcome === 'Yes' ? 'primary' : 'secondary'}
-                            className={selectedOutcome === 'Yes' ? 'bg-emerald-500 hover:bg-emerald-400 text-white' : ''}
+                            className={selectedOutcome === 'Yes' ? 'bg-[#B6F34E] hover:bg-[#9ED93A] text-black' : ''}
                             onClick={() => setSelectedOutcome('Yes')}
                             disabled={market.resolved || !currentAccount}
                         >
@@ -214,7 +214,7 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                         </UIButton>
                         <UIButton
                             variant={selectedOutcome === 'No' ? 'primary' : 'secondary'}
-                            className={selectedOutcome === 'No' ? 'bg-rose-500 hover:bg-rose-400 text-white' : ''}
+                            className={selectedOutcome === 'No' ? 'bg-[#E5484D] hover:bg-[#DC3E42] text-white' : ''}
                             onClick={() => setSelectedOutcome('No')}
                             disabled={market.resolved || !currentAccount}
                         >
