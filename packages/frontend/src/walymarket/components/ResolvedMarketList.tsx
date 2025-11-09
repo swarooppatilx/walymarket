@@ -1,4 +1,4 @@
-import { Card, Flex, Text } from '@radix-ui/themes';
+import { Card, Flex, Grid, Text } from '@radix-ui/themes';
 import { Link } from 'react-router-dom';
 import { Market } from '~~/walymarket/types';
 import { formatSui } from '~~/walymarket/helpers/format';
@@ -15,10 +15,10 @@ export const ResolvedMarketList = ({ markets }: { markets: Market[] }) => {
     }
 
     return (
-        <Card>
+        <Card className="border border-white/10 bg-white/5 dark:bg-slate-900/40">
             <Flex direction="column" gap="4">
                 <Text weight="bold" size="4">Recently Resolved</Text>
-                <Flex direction="column" gap="3">
+                <Grid columns={{ initial: '1', xs: '2', md: '3' }} gap="3">
                     {markets.map((m) => {
                         const totalPool = m.totalAtResolution ?? m.totalPool;
                         const winningPool = m.winningPoolAtResolution;
@@ -42,7 +42,7 @@ export const ResolvedMarketList = ({ markets }: { markets: Market[] }) => {
                             </Card>
                         );
                     })}
-                </Flex>
+                </Grid>
             </Flex>
         </Card>
     );

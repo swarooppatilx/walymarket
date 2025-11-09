@@ -66,7 +66,7 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
     const currentNo = last ? formatPercent(last.no) : '—';
 
     return (
-        <Card>
+        <Card className="border border-white/10 bg-white/5 dark:bg-slate-900/40">
             <Flex direction="column" gap="3">
                 <Flex justify="between" align="center" wrap="wrap" gap="3">
                     <Text weight="bold" size="3">Price History</Text>
@@ -89,7 +89,7 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
                     </Flex>
                 </Flex>
                 {!loading && !error && points.length === 0 && (
-                    <Flex justify="center" align="center" style={{ height: size.height, background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}>
+                    <Flex justify="center" align="center" className="h-[240px] rounded-lg bg-white/5 dark:bg-slate-900/40">
                         <Text color="gray" size="2">No trading history yet</Text>
                     </Flex>
                 )}
@@ -101,7 +101,7 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
                         viewBox={`0 0 ${size.width} ${size.height}`}
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleLeave}
-                        style={{ cursor: 'crosshair', background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}
+                        className="cursor-crosshair rounded-lg"
                     >
                         {/* Grid lines */}
                         {[0.25, 0.5, 0.75].map(ratio => (
@@ -111,41 +111,41 @@ export const PriceHistoryChart = ({ marketId }: { marketId: string }) => {
                                 y1={padding.top + (size.height - padding.top - padding.bottom) * ratio}
                                 x2={size.width - padding.right}
                                 y2={padding.top + (size.height - padding.top - padding.bottom) * ratio}
-                                stroke="#333"
+                                stroke="#334155"
                                 strokeDasharray="2 4"
-                                opacity={0.3}
+                                opacity={0.25}
                             />
                         ))}
                         {/* Axes */}
-                        <line x1={padding.left} y1={padding.top} x2={padding.left} y2={size.height - padding.bottom} stroke="#555" strokeWidth={1.5} />
-                        <line x1={padding.left} y1={size.height - padding.bottom} x2={size.width - padding.right} y2={size.height - padding.bottom} stroke="#555" strokeWidth={1.5} />
+                        <line x1={padding.left} y1={padding.top} x2={padding.left} y2={size.height - padding.bottom} stroke="#475569" strokeWidth={1.5} opacity={0.6} />
+                        <line x1={padding.left} y1={size.height - padding.bottom} x2={size.width - padding.right} y2={size.height - padding.bottom} stroke="#475569" strokeWidth={1.5} opacity={0.6} />
                         {/* Y-axis labels */}
-                        <text x={padding.left - 8} y={padding.top + 4} fontSize="10" fill="#888" textAnchor="end">100%</text>
-                        <text x={padding.left - 8} y={size.height - padding.bottom + 4} fontSize="10" fill="#888" textAnchor="end">0%</text>
+                        <text x={padding.left - 8} y={padding.top + 4} fontSize="10" fill="#94a3b8" textAnchor="end">100%</text>
+                        <text x={padding.left - 8} y={size.height - padding.bottom + 4} fontSize="10" fill="#94a3b8" textAnchor="end">0%</text>
                         {/* No/Yes paths */}
                         <path d={paths.no} stroke="#e5484d" fill="none" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                         <path d={paths.yes} stroke="#46a758" fill="none" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
                         {/* Hover indicator */}
                         {hover && (
                             <>
-                                <line x1={hover.x} x2={hover.x} y1={padding.top} y2={size.height - padding.bottom} stroke="#888" strokeDasharray="4 4" strokeWidth={1} />
+                                <line x1={hover.x} x2={hover.x} y1={padding.top} y2={size.height - padding.bottom} stroke="#64748b" strokeDasharray="4 4" strokeWidth={1} />
                                 <circle cx={hover.x} cy={hover.y} r={4} fill="#46a758" stroke="#fff" strokeWidth={2} />
                             </>
                         )}
                     </svg>
                 )}
                 {hover && (
-                    <Flex justify="center" style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: 6 }}>
+                    <Flex justify="center" className="rounded-md bg-white/10 px-2 py-1">
                         <Text size="1" color="gray">{formatTime(hover.p.ts)} • Yes {formatPercent(hover.p.yes)} • No {formatPercent(hover.p.no)}</Text>
                     </Flex>
                 )}
                 {loading && (
-                    <Flex justify="center" align="center" style={{ height: size.height }}>
+                    <Flex justify="center" align="center" className="h-[240px]">
                         <Text color="gray" size="2">Loading history…</Text>
                     </Flex>
                 )}
                 {error && (
-                    <Flex justify="center" align="center" style={{ height: size.height }}>
+                    <Flex justify="center" align="center" className="h-[240px]">
                         <Text color="red" size="2">Failed to load history</Text>
                     </Flex>
                 )}
