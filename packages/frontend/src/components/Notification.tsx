@@ -1,4 +1,3 @@
-import { Button } from '@radix-ui/themes'
 import c from 'clsx'
 import { XIcon } from 'lucide-react'
 import { FC, PropsWithChildren } from 'react'
@@ -8,6 +7,7 @@ interface INotification {
   id?: string
   type: ToastType
 }
+
 const Notification: FC<PropsWithChildren<INotification>> = ({
   children,
   id,
@@ -29,13 +29,12 @@ const Notification: FC<PropsWithChildren<INotification>> = ({
         {children}
       </div>
       {isCloseButtonVisible && (
-        <Button
-          variant="ghost"
-          className="-mr-3 cursor-pointer px-1 text-sds-accent-a11"
+        <button
+          className="-mr-3 cursor-pointer px-1 text-gray-400 hover:text-white transition-colors"
           onClick={() => toast.dismiss(id)}
         >
-          <XIcon />
-        </Button>
+          <XIcon className="h-5 w-5" />
+        </button>
       )}
     </div>
   )

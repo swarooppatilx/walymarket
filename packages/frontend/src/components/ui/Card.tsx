@@ -15,7 +15,7 @@ export const Card = ({
     return (
         <div
             className={clsx(
-                'rounded-xl border border-white/10 bg-white/5 dark:bg-slate-900/40 backdrop-blur-sm',
+                'rounded-md border border-[#535353] bg-[#2B2B2B] ',
                 padded && 'p-4',
                 interactive &&
                 'transition-transform hover:-translate-y-0.5 hover:shadow-lg hover:border-white/20',

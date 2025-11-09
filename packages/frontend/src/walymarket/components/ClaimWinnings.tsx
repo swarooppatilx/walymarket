@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
-import { Button, Card, Flex, Text } from '@radix-ui/themes';
+import UIButton from '~~/components/ui/Button';
+import UICard from '~~/components/ui/Card';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
 import { CONTRACT_PACKAGE_VARIABLE_NAME, EXPLORER_URL_VARIABLE_NAME } from '~~/config/network';
 import { Market } from '~~/walymarket/types';
@@ -95,44 +96,47 @@ export const ClaimWinnings = ({ market, onClaimed }: { market: Market; onClaimed
     if (!market.resolved || !current) return null;
 
     return (
-        <Card>
-            <Flex direction="column" gap="3">
-                <Text weight="bold">Claim winnings</Text>
-                <Flex justify="between" align="center">
-                    <Text size="1" color="gray">
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <h3 className="text-base font-bold text-white">Claim Winnings</h3>
+                <div className="flex justify-between items-center">
+                    <p className="text-xs text-gray-400">
                         Outcome resolved to {winningLabel}. Total pooled: {totalPoolDisplay} SUI
-                    </Text>
-                    <Button size="1" variant="soft" onClick={loadTickets} disabled={loading}>
+                    </p>
+                    <UIButton size="sm" variant="ghost" onClick={loadTickets} disabled={loading}>
                         Refresh tickets
-                    </Button>
-                </Flex>
+                    </UIButton>
+                </div>
+
                 {winningPoolSnapshotMist !== null && winningPoolSnapshotMist === 0 && (
-                    <Text color="red" size="1">
+                    <p className="text-xs text-red-400">
                         Winning pool is empty; no payouts available for this outcome.
-                    </Text>
+                    </p>
                 )}
-                {loading && <Text color="gray">Loading your tickets…</Text>}
+
+                {loading && <p className="text-sm text-gray-400">Loading your tickets…</p>}
                 {!loading && tickets.length === 0 && (
-                    <Text color="gray">No winning tickets found for this market.</Text>
+                    <p className="text-sm text-gray-400">No winning tickets found for this market.</p>
                 )}
+
                 {!loading && tickets.length > 0 && (
-                    <Flex direction="column" gap="2">
+                    <div className="flex flex-col gap-2">
                         {tickets.map((t) => (
-                            <Flex key={t.id} align="center" justify="between" className="border-t pt-2 mt-2">
-                                <Flex direction="column" gap="1">
-                                    <Text size="2">Ticket {t.id.slice(0, 8)}… — Stake {(t.amountPaid / 1_000_000_000).toFixed(4)} SUI</Text>
+                            <div key={t.id} className="flex items-center justify-between border-t border-[#535353] pt-2 mt-2">
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-sm text-white">Ticket {t.id.slice(0, 8)}… — Stake {(t.amountPaid / 1_000_000_000).toFixed(4)} SUI</p>
                                     {t.payoutMist != null && (
-                                        <Text size="1" color="gray">
+                                        <p className="text-xs text-gray-400">
                                             Est. payout {(t.payoutMist / 1_000_000_000).toFixed(4)} SUI (Profit {((t.payoutMist - t.amountPaid) / 1_000_000_000).toFixed(4)} SUI)
-                                        </Text>
+                                        </p>
                                     )}
-                                </Flex>
-                                <Button onClick={() => claim(t.id)}>Claim</Button>
-                            </Flex>
+                                </div>
+                                <UIButton size="sm" onClick={() => claim(t.id)}>Claim</UIButton>
+                            </div>
                         ))}
-                    </Flex>
+                    </div>
                 )}
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };

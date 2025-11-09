@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Card, Flex, Text, Tooltip, Separator, Avatar, Badge } from '@radix-ui/themes';
+import UIButton from '~~/components/ui/Button';
+import UICard from '~~/components/ui/Card';
 import useTransact from '@suiware/kit/useTransact';
 import { SuiSignAndExecuteTransactionOutput } from '@mysten/wallet-standard';
 import useNetworkConfig from '~~/hooks/useNetworkConfig';
@@ -40,67 +41,64 @@ export const MarketManager = ({ markets, onResolved }: { markets: Market[]; onRe
     };
 
     return (
-        <Card className="market-card-sds" style={{ padding: 16 }}>
-            <Flex direction="column" gap="3">
-                <Flex justify="between" align="center" wrap="wrap" gap="2">
-                    <Text weight="bold" style={{ fontSize: 16 }}>Active Markets</Text>
-                    <Text size="1" color="gray">Resolve once outcome is certain. This action is final.</Text>
-                </Flex>
-                <Separator my="2" size="4" />
-                {markets.length === 0 && <Text color="gray">No active markets.</Text>}
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                    <h3 className="text-base font-bold text-white">Active Markets</h3>
+                    <p className="text-xs text-gray-400">Resolve once outcome is certain. This action is final.</p>
+                </div>
+                <div className="h-px bg-[#535353] my-2" />
+                {markets.length === 0 && <p className="text-gray-400">No active markets.</p>}
                 <div className="grid gap-3 md:grid-cols-2">
                     {markets.map((m) => (
-                        <Card key={m.id} className="market-card-sds" style={{ padding: 14 }}>
-                            <Flex align="start" gap="3" wrap="wrap" justify="between">
-                                <Flex align="start" gap="3" style={{ minWidth: '260px', flex: '1 1 360px' }}>
+                        <UICard key={m.id} className="p-3.5">
+                            <div className="flex items-start gap-3 flex-wrap justify-between">
+                                <div className="flex items-start gap-3 min-w-[260px] flex-1">
                                     {m.imageUrl ? (
-                                        <img src={m.imageUrl} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.15)' }} />
+                                        <img src={m.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover border border-white/15" />
                                     ) : (
-                                        <Avatar fallback="M" size="4" radius="medium" />
+                                        <div className="w-14 h-14 rounded-lg bg-[#3a3a3a] flex items-center justify-center text-white font-bold">M</div>
                                     )}
-                                    <Flex direction="column" gap="2">
-                                        <Text weight="bold">{m.title || m.question}</Text>
-                                        {m as any && (
-                                            <Text size="1" color="gray" className="line-clamp-2">
-                                                {/* optional description if present */}
-                                                {((m as any).description as string | undefined) || ''}
-                                            </Text>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="font-bold text-white">{m.title || m.question}</p>
+                                        {(m as any).description && (
+                                            <p className="text-xs text-gray-400 line-clamp-2">{(m as any).description}</p>
                                         )}
-                                        <Flex gap="2" align="center" wrap="wrap">
-                                            <Badge variant="soft" color="green">YES {(m.yesChance * 100).toFixed(1)}%</Badge>
-                                            <Badge variant="soft" color="red">NO {(m.noChance * 100).toFixed(1)}%</Badge>
-                                            <Text size="1" color="gray">Y {formatPool(m.yesPool)} · N {formatPool(m.noPool)}</Text>
-                                        </Flex>
-                                    </Flex>
-                                </Flex>
-                                <Flex gap="2" align="center">
-                                    <Tooltip content="Resolve YES">
-                                        <Button
-                                            className="btn-sds-ghost"
-                                            onClick={() => handleResolve(m.id, true)}
-                                            disabled={pendingMarketId === m.id}
-                                            size="1"
-                                        >
-                                            {pendingMarketId === m.id ? 'Resolving…' : 'Resolve YES'}
-                                        </Button>
-                                    </Tooltip>
-                                    <Tooltip content="Resolve NO">
-                                        <Button
-                                            className="btn-sds-ghost"
-                                            onClick={() => handleResolve(m.id, false)}
-                                            disabled={pendingMarketId === m.id}
-                                            size="1"
-                                        >
-                                            {pendingMarketId === m.id ? 'Resolving…' : 'Resolve NO'}
-                                        </Button>
-                                    </Tooltip>
-                                </Flex>
-                            </Flex>
-                        </Card>
+                                        <div className="flex gap-2 items-center flex-wrap">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                YES {(m.yesChance * 100).toFixed(1)}%
+                                            </span>
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                                NO {(m.noChance * 100).toFixed(1)}%
+                                            </span>
+                                            <span className="text-xs text-gray-400">Y {formatPool(m.yesPool)} · N {formatPool(m.noPool)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 items-center">
+                                    <UIButton
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleResolve(m.id, true)}
+                                        disabled={pendingMarketId === m.id}
+                                    >
+                                        {pendingMarketId === m.id ? 'Resolving…' : 'Resolve YES'}
+                                    </UIButton>
+                                    <UIButton
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleResolve(m.id, false)}
+                                        disabled={pendingMarketId === m.id}
+                                    >
+                                        {pendingMarketId === m.id ? 'Resolving…' : 'Resolve NO'}
+                                    </UIButton>
+                                </div>
+                            </div>
+                        </UICard>
                     ))}
                 </div>
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };
 

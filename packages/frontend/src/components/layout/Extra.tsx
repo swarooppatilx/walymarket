@@ -4,7 +4,10 @@ import AnimatedBackground from '~~/components/AnimatedBackground'
 const Extra = () => {
   return (
     <>
-      <AnimatedBackground />
+    <div className='pointer-events-none fixed inset-0 z-[60]'>
+      <div className='absolute inset-y-0  left-10 w-0.5 bg-[#535353]'></div>
+      <div className='absolute inset-y-0 right-10 w-0.5 bg-[#535353]'></div>
+    </div>
       <Toaster
         toastOptions={{
           className:

@@ -1,4 +1,4 @@
-import { Container, Flex, Heading, Text, Card, Separator, Badge, Link as RadixLink } from '@radix-ui/themes';
+import { Link } from 'react-router-dom';
 import Layout from '~~/components/layout/Layout';
 import { useGetOwnedAdminCap } from '~~/walymarket/hooks/useGetOwnedAdminCap';
 import { useGetMarkets } from '~~/walymarket/hooks/useGetMarkets';
@@ -6,7 +6,7 @@ import { CreateMarketForm } from '~~/walymarket/components/CreateMarketForm';
 import { MarketManager } from '~~/walymarket/components/MarketManager';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { ADMIN_ADDRESS } from '~~/walymarket/config/admin';
-import { Link } from 'react-router-dom';
+import UICard from '~~/components/ui/Card';
 
 const AdminPage = () => {
     const { isAdmin } = useGetOwnedAdminCap();
@@ -15,54 +15,59 @@ const AdminPage = () => {
 
     return (
         <Layout>
-            <Container py="5" size="3">
-                <Flex direction="column" gap="4">
-                    <Heading size="5">Admin Panel</Heading>
-                    <Card className="market-card-sds" style={{ padding: 16 }}>
-                        <Flex direction="column" gap="2">
-                            <Text weight="bold">Admin Status</Text>
-                            {!current && <Text color="red">Connect a wallet to continue.</Text>}
+            <div className="max-w-5xl mx-auto w-full px-6 py-5">
+                <div className="flex flex-col gap-4">
+                    <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
+                    <UICard className="p-4">
+                        <div className="flex flex-col gap-2">
+                            <h3 className="font-bold text-white">Admin Status</h3>
+                            {!current && <p className="text-red-400">Connect a wallet to continue.</p>}
                             {current && (
                                 <>
-                                    <Text size="2">Connected: <Badge color={isAdmin ? 'green' : 'red'}>{current.address}</Badge></Text>
-                                    <Text size="1" color="gray">Allowed admin: {ADMIN_ADDRESS}</Text>
+                                    <p className="text-sm text-white">
+                                        Connected: <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isAdmin ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>{current.address}</span>
+                                    </p>
+                                    <p className="text-xs text-gray-400">Allowed admin: {ADMIN_ADDRESS}</p>
                                 </>
                             )}
-                        </Flex>
-                    </Card>
+                        </div>
+                    </UICard>
                     {!current && <></>}
                     {current && !isAdmin && (
-                        <Text color="red">Access denied. This page is restricted to the admin address.</Text>
+                        <p className="text-red-400">Access denied. This page is restricted to the admin address.</p>
                     )}
                     {current && isAdmin && (
-                        <Flex direction="column" gap="5">
+                        <div className="flex flex-col gap-5">
                             <CreateMarketForm onCreated={refetch} />
                             <MarketManager markets={markets} onResolved={refetch} />
-                            <Card className="market-card-sds" style={{ padding: 16 }}>
-                                <Flex direction="column" gap="3">
-                                    <Text weight="bold">Recently Resolved</Text>
-                                    <Separator my="1" size="1" />
-                                    {resolvedMarkets.length === 0 && <Text color="gray">No resolved markets yet.</Text>}
+                            <UICard className="p-4">
+                                <div className="flex flex-col gap-3">
+                                    <h3 className="font-bold text-white">Recently Resolved</h3>
+                                    <div className="h-px bg-[#535353] my-1" />
+                                    {resolvedMarkets.length === 0 && <p className="text-gray-400">No resolved markets yet.</p>}
                                     {resolvedMarkets.map((m) => (
-                                        <>
-                                            <Separator size="1" />
-                                            <Flex key={m.id} justify="between" align="center" className="py-2" wrap="wrap" gap="2">
-                                                <Flex direction="column" gap="1" style={{ minWidth: '260px', flex: '1 1 320px' }}>
-                                                    <Text>{m.title || m.question}</Text>
-                                                    <Text size="1" color="gray">Outcome: {m.resolution === null ? '-' : m.resolution ? 'YES' : 'NO'}</Text>
-                                                </Flex>
-                                                <RadixLink asChild>
-                                                    <Link to={`/market/${m.id}`}>Open</Link>
-                                                </RadixLink>
-                                            </Flex>
-                                        </>
+                                        <div key={m.id}>
+                                            <div className="h-px bg-[#535353]" />
+                                            <div className="flex justify-between items-center py-2 flex-wrap gap-2">
+                                                <div className="flex flex-col gap-1 min-w-[260px] flex-1">
+                                                    <p className="text-white">{m.title || m.question}</p>
+                                                    <p className="text-xs text-gray-400">Outcome: {m.resolution === null ? '-' : m.resolution ? 'YES' : 'NO'}</p>
+                                                </div>
+                                                <Link
+                                                    to={`/market/${m.id}`}
+                                                    className="px-3 py-1.5 rounded-md bg-[#B6F34E] text-black text-sm font-medium hover:bg-[#9ED93A] transition-colors"
+                                                >
+                                                    Open
+                                                </Link>
+                                            </div>
+                                        </div>
                                     ))}
-                                </Flex>
-                            </Card>
-                        </Flex>
+                                </div>
+                            </UICard>
+                        </div>
                     )}
-                </Flex>
-            </Container>
+                </div>
+            </div>
         </Layout>
     );
 };

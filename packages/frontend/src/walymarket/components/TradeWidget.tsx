@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { Card as RadixCard, Flex, Text, Tabs } from '@radix-ui/themes';
 import UIButton from '~~/components/ui/Button';
 import UIInput from '~~/components/ui/Input';
+import UICard from '~~/components/ui/Card';
 import useTransact from '@suiware/kit/useTransact';
 import { SuiSignAndExecuteTransactionOutput } from '@mysten/wallet-standard';
 import { Market } from '~~/walymarket/types';
@@ -151,39 +151,59 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
     }, [market.resolved]);
 
     return (
-        <RadixCard size="3" className="border border-white/10 bg-white/5 dark:bg-slate-900/40">
-            <Flex direction="column" gap="4">
-                <Tabs.Root value={mode} onValueChange={(v) => setMode(v as 'buy' | 'sell')}>
-                    <Flex justify="between" align="center">
-                        <Text weight="bold" size="4">{mode === 'buy' ? 'Buy Shares' : 'Sell Shares'}</Text>
-                        <Tabs.List>
-                            <Tabs.Trigger value="buy" disabled={pending}>Buy</Tabs.Trigger>
-                            <Tabs.Trigger value="sell" disabled={pending || market.resolved}>Sell</Tabs.Trigger>
-                        </Tabs.List>
-                    </Flex>
-                </Tabs.Root>
+        <UICard className="p-4">
+            <div className="flex flex-col gap-4">
+                {/* Mode Toggle */}
+                <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-white">{mode === 'buy' ? 'Buy Shares' : 'Sell Shares'}</h3>
+                    <div className="flex gap-1 rounded-md border border-[#535353] bg-[#1a1a1a] p-1">
+                        <button
+                            onClick={() => setMode('buy')}
+                            disabled={pending}
+                            className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                                mode === 'buy'
+                                    ? 'bg-[#B6F34E] text-black'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            Buy
+                        </button>
+                        <button
+                            onClick={() => setMode('sell')}
+                            disabled={pending || market.resolved}
+                            className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                                mode === 'sell'
+                                    ? 'bg-[#B6F34E] text-black'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            Sell
+                        </button>
+                    </div>
+                </div>
 
                 {market.resolved && (
-                    <RadixCard variant="surface" className="border border-red-500/20 bg-red-500/10">
-                        <Text size="2" color="red" weight="medium" className="py-1">
+                    <UICard className="border-red-500/20 bg-red-500/10 p-3">
+                        <p className="text-sm font-medium text-red-400">
                             Market Resolved • Trading Closed
-                        </Text>
-                    </RadixCard>
+                        </p>
+                    </UICard>
                 )}
 
                 {!currentAccount && !market.resolved && (
-                    <RadixCard variant="surface" className="border border-amber-500/20 bg-amber-500/10">
-                        <Text size="2" weight="medium" className="py-1">
+                    <UICard className="border-amber-500/20 bg-amber-500/10 p-3">
+                        <p className="text-sm font-medium text-amber-300">
                             Connect wallet to trade
-                        </Text>
-                    </RadixCard>
+                        </p>
+                    </UICard>
                 )}
 
-                <Flex direction="column" gap="2">
-                    <Text size="2" color="gray" weight="medium">Select Outcome</Text>
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-300">Select Outcome</label>
                     <div className="grid grid-cols-2 gap-2">
                         <UIButton
-                            className={selectedOutcome === 'Yes' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-white/5 hover:bg-white/10 text-white'}
+                            variant={selectedOutcome === 'Yes' ? 'primary' : 'secondary'}
+                            className={selectedOutcome === 'Yes' ? 'bg-emerald-500 hover:bg-emerald-400 text-white' : ''}
                             onClick={() => setSelectedOutcome('Yes')}
                             disabled={market.resolved || !currentAccount}
                         >
@@ -193,7 +213,8 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                             </span>
                         </UIButton>
                         <UIButton
-                            className={selectedOutcome === 'No' ? 'bg-rose-500 hover:bg-rose-400' : 'bg-white/5 hover:bg-white/10 text-white'}
+                            variant={selectedOutcome === 'No' ? 'primary' : 'secondary'}
+                            className={selectedOutcome === 'No' ? 'bg-rose-500 hover:bg-rose-400 text-white' : ''}
                             onClick={() => setSelectedOutcome('No')}
                             disabled={market.resolved || !currentAccount}
                         >
@@ -203,11 +224,11 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                             </span>
                         </UIButton>
                     </div>
-                </Flex>
+                </div>
 
                 {mode === 'buy' && (
-                    <Flex direction="column" gap="2">
-                        <Text size="2" color="gray" weight="medium">Amount (SUI)</Text>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-300">Amount (SUI)</label>
                         <UIInput
                             placeholder="Enter amount..."
                             type="number"
@@ -215,19 +236,20 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                             onChange={(e) => setAmountSUI(e.target.value)}
                             disabled={market.resolved || !currentAccount || !selectedOutcome}
                         />
-                        <Flex justify="between" wrap="wrap" gap="1">
-                            <Text size="1" color="gray">Liquidity: {(market.totalPool / 1_000_000_000).toFixed(2)} SUI</Text>
+                        <div className="flex justify-between flex-wrap gap-1">
+                            <span className="text-xs text-gray-400">Liquidity: {(market.totalPool / 1_000_000_000).toFixed(2)} SUI</span>
                             {selectedOutcome && (
-                                <Text size="1" color="gray">
+                                <span className="text-xs text-gray-400">
                                     {selectedOutcome} pool: {((selectedOutcome === 'Yes' ? market.yesPool : market.noPool) / 1_000_000_000).toFixed(2)} SUI
-                                </Text>
+                                </span>
                             )}
-                        </Flex>
-                    </Flex>
+                        </div>
+                    </div>
                 )}
+
                 {mode === 'sell' && (
-                    <Flex direction="column" gap="2">
-                        <Text size="2" color="gray" weight="medium">Shares to sell (SUI units)</Text>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-300">Shares to sell (SUI units)</label>
                         <UIInput
                             placeholder="Enter shares..."
                             type="number"
@@ -236,70 +258,63 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                             disabled={market.resolved || !currentAccount || !selectedOutcome}
                         />
                         {selectedOutcome && (
-                            <Flex justify="between" wrap="wrap" gap="1">
-                                <Text size="1" color="gray">
+                            <div className="flex justify-between flex-wrap gap-1">
+                                <span className="text-xs text-gray-400">
                                     Holding: {((selectedOutcome === 'Yes' ? yesHolding?.amount || 0 : noHolding?.amount || 0) / 1_000_000_000).toFixed(3)} SUI shares
-                                </Text>
-                                <UIButton size="sm" onClick={() => {
+                                </span>
+                                <UIButton size="sm" variant="ghost" onClick={() => {
                                     const amt = selectedOutcome === 'Yes' ? yesHolding?.amount || 0 : noHolding?.amount || 0;
                                     setSellShares((amt / 1_000_000_000).toString());
                                 }} disabled={!currentAccount || pending}>Max</UIButton>
-                            </Flex>
+                            </div>
                         )}
-                    </Flex>
+                    </div>
                 )}
 
                 {payoutEstimate && selectedOutcome && mode === 'buy' && (
-                    <RadixCard variant="surface" className="bg-emerald-500/10">
-                        <Flex direction="column" gap="2">
-                            <Text size="2" weight="medium">Expected Returns</Text>
-                            <Flex direction="column" gap="1">
-                                <Flex justify="between">
-                                    <Text size="2" color="gray">If {selectedOutcome} wins:</Text>
-                                    <Text size="2" weight="bold">{payoutEstimate.payoutSUI.toFixed(3)} SUI</Text>
-                                </Flex>
-                                <Flex justify="between">
-                                    <Text size="2" color="gray">Profit:</Text>
-                                    <Text size="2" weight="bold" color={payoutEstimate.profit >= 0 ? 'jade' : 'red'}>
+                    <UICard className="bg-emerald-500/10 border-emerald-500/20 p-3">
+                        <div className="flex flex-col gap-2">
+                            <p className="text-sm font-medium text-white">Expected Returns</p>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-300">If {selectedOutcome} wins:</span>
+                                    <span className="text-sm font-bold text-white">{payoutEstimate.payoutSUI.toFixed(3)} SUI</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-300">Profit:</span>
+                                    <span className={`text-sm font-bold ${payoutEstimate.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                         {payoutEstimate.profit >= 0 ? '+' : ''}{payoutEstimate.profit.toFixed(3)} SUI
-                                    </Text>
-                                </Flex>
-                                <Flex justify="between">
-                                    <Text size="1" color="gray">New price (chance / cents):</Text>
-                                    <Text size="1" color="gray">
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-xs text-gray-400">New price (chance / cents):</span>
+                                    <span className="text-xs text-gray-400">
                                         {selectedOutcome === 'Yes'
                                             ? `${(payoutEstimate.yesOddsAfter * 100).toFixed(2)}% • ${formatCents(payoutEstimate.yesOddsAfter)}`
                                             : `${(payoutEstimate.noOddsAfter * 100).toFixed(2)}% • ${formatCents(payoutEstimate.noOddsAfter)}`}
-                                    </Text>
-                                </Flex>
-                                <Flex justify="between">
-                                    <Text size="1" color="gray">Liquidity b used:</Text>
-                                    <Text size="1" color="gray">{payoutEstimate.bUsed}</Text>
-                                </Flex>
-                            </Flex>
-                        </Flex>
-                    </RadixCard>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </UICard>
                 )}
+
                 {sellPreview && selectedOutcome && mode === 'sell' && (
-                    <RadixCard variant="surface" className="bg-rose-500/10">
-                        <Flex direction="column" gap="2">
-                            <Text size="2" weight="medium">Sell Preview</Text>
-                            <Flex direction="column" gap="1">
-                                <Flex justify="between">
-                                    <Text size="2" color="gray">Refund:</Text>
-                                    <Text size="2" weight="bold">{sellPreview.refundSUI.toFixed(3)} SUI</Text>
-                                </Flex>
-                                <Flex justify="between">
-                                    <Text size="1" color="gray">New Yes price:</Text>
-                                    <Text size="1" color="gray">{(sellPreview.newYesPrice * 100).toFixed(2)}%</Text>
-                                </Flex>
-                                <Flex justify="between">
-                                    <Text size="1" color="gray">Liquidity b used:</Text>
-                                    <Text size="1" color="gray">{sellPreview.bUsed}</Text>
-                                </Flex>
-                            </Flex>
-                        </Flex>
-                    </RadixCard>
+                    <UICard className="bg-rose-500/10 border-rose-500/20 p-3">
+                        <div className="flex flex-col gap-2">
+                            <p className="text-sm font-medium text-white">Sell Preview</p>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-300">Refund:</span>
+                                    <span className="text-sm font-bold text-white">{sellPreview.refundSUI.toFixed(3)} SUI</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-xs text-gray-400">New Yes price:</span>
+                                    <span className="text-xs text-gray-400">{(sellPreview.newYesPrice * 100).toFixed(2)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </UICard>
                 )}
 
                 <UIButton
@@ -312,8 +327,8 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                         ? (selectedOutcome && amountSUI ? `Buy ${parseFloat(amountSUI).toFixed(2)} SUI of ${selectedOutcome}` : 'Enter amount to buy')
                         : (selectedOutcome && sellShares ? `Sell ${parseFloat(sellShares).toFixed(2)} SUI shares ${selectedOutcome}` : 'Enter shares to sell')}
                 </UIButton>
-            </Flex>
-        </RadixCard>
+            </div>
+        </UICard>
     );
 };
 

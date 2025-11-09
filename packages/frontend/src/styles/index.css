@@ -11,14 +11,14 @@
   --sds-pink: #fed5f4;
   --sds-blue: #4da2ff;
   --sds-font-inter: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-
-  color-scheme: light dark;
+  --card-background-color: #2B2B2B color-scheme: light dark;
 
   font-family: var(--sds-font-inter);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
 }
 
 body,

@@ -1,4 +1,3 @@
-import { Container, Flex, Heading, Card, Text, Button, Separator, TextField, Select, Badge, Link as RadixLink } from '@radix-ui/themes';
 import { Link } from 'react-router-dom';
 import Layout from '~~/components/layout/Layout';
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
@@ -7,6 +6,9 @@ import { CONTRACT_PACKAGE_VARIABLE_NAME } from '~~/config/network';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { fullStructName } from '~~/helpers/network';
 import { formatSui, shortId } from '~~/walymarket/helpers/format';
+import UICard from '~~/components/ui/Card';
+import UIButton from '~~/components/ui/Button';
+import UIInput from '~~/components/ui/Input';
 
 interface PositionRow { id: string; marketId: string; outcome: boolean; amountPaid: number; }
 
@@ -84,11 +86,6 @@ export const PortfolioPage = () => {
         return allPositionsRaw.map(p => ({ ...p, pnl: p.amountPaid }));
     }, [allPositionsRaw]);
 
-    // filtered list of individual positions retained for potential future per-token detail views (currently unused)
-    // const filtered = enriched;
-
-    // placeholder for deprecated sorted logic after aggregation introduced
-
     const totalStake = useMemo(() => enriched.reduce((acc, p) => acc + p.amountPaid, 0), [enriched]);
     const totalYesStake = useMemo(() => enriched.filter(p => p.outcome).reduce((a, p) => a + p.amountPaid, 0), [enriched]);
     const totalNoStake = useMemo(() => enriched.filter(p => !p.outcome).reduce((a, p) => a + p.amountPaid, 0), [enriched]);
@@ -131,84 +128,102 @@ export const PortfolioPage = () => {
 
     return (
         <Layout>
-            <Container size="4" py="5">
-                <Flex direction="column" gap="4">
-                    <Heading size="5">Your Portfolio</Heading>
-                    <Text size="2" color="gray">Track positions across legacy and v2 markets.</Text>
-                    {!account && <Card className="market-card-sds" style={{ padding: 16 }}><Text color="gray">Connect wallet to view portfolio.</Text></Card>}
+            <div className="max-w-7xl mx-auto w-full px-6 py-5">
+                <div className="flex flex-col gap-4">
+                    <h1 className="text-2xl font-bold text-white">Your Portfolio</h1>
+                    <p className="text-sm text-gray-400">Track positions across legacy and v2 markets.</p>
+                    {!account && <UICard className="p-4"><p className="text-gray-400">Connect wallet to view portfolio.</p></UICard>}
                     {account && (
-                        <Card className="market-card-sds" style={{ padding: 16 }}>
-                            <Flex direction="column" gap="3">
-                                <Flex justify="between" align="center" wrap="wrap" gap="3">
-                                    <Text weight="bold" style={{ fontSize: 16 }}>Positions</Text>
-                                    <Flex align="center" gap="2">
-                                        <TextField.Root className="input-sds" size="1" placeholder="Search markets" value={search} onChange={e => setSearch(e.target.value)} />
-                                        <Select.Root value={filterSide} onValueChange={(v: any) => setFilterSide(v)}>
-                                            <Select.Trigger placeholder="Side" />
-                                            <Select.Content>
-                                                <Select.Item value="all">All</Select.Item>
-                                                <Select.Item value="yes">YES</Select.Item>
-                                                <Select.Item value="no">NO</Select.Item>
-                                            </Select.Content>
-                                        </Select.Root>
-                                        <Select.Root value={sortKey} onValueChange={(v: any) => setSortKey(v)}>
-                                            <Select.Trigger placeholder="Sort" />
-                                            <Select.Content>
-                                                <Select.Item value="stake">Stake</Select.Item>
-                                                <Select.Item value="outcome">Outcome</Select.Item>
-                                                <Select.Item value="market">Market</Select.Item>
-                                            </Select.Content>
-                                        </Select.Root>
-                                        <Button className="btn-sds-ghost" size="1" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>{sortDir === 'asc' ? 'Asc' : 'Desc'}</Button>
-                                        <Button className="btn-sds-ghost" size="1" onClick={load} disabled={loading}>{loading ? 'Loading…' : 'Refresh'}</Button>
-                                    </Flex>
-                                </Flex>
-                                <Separator my="2" size="1" />
-                                <Flex gap="4" wrap="wrap">
-                                    <Text size="1" color="gray">Total: <span className="text-[inherit] font-medium">{formatSui(totalStake)} SUI</span></Text>
-                                    <Text size="1" color="gray">YES: <span className="text-[inherit] font-medium">{formatSui(totalYesStake)} SUI</span></Text>
-                                    <Text size="1" color="gray">NO: <span className="text-[inherit] font-medium">{formatSui(totalNoStake)} SUI</span></Text>
-                                </Flex>
-                                {loading && <Text size="2" color="gray">Loading positions…</Text>}
-                                {!loading && aggregated.length === 0 && <Text size="2" color="gray">No positions match criteria.</Text>}
+                        <UICard className="p-4">
+                            <div className="flex flex-col gap-3">
+                                <div className="flex justify-between items-center flex-wrap gap-3">
+                                    <h3 className="text-base font-bold text-white">Positions</h3>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <UIInput
+                                            className="w-48"
+                                            placeholder="Search markets"
+                                            value={search}
+                                            onChange={e => setSearch(e.target.value)}
+                                        />
+                                        <select
+                                            value={filterSide}
+                                            onChange={(e) => setFilterSide(e.target.value as any)}
+                                            className="h-10 px-3 rounded-md border border-[#535353] bg-[#2B2B2B] text-sm text-white outline-none"
+                                        >
+                                            <option value="all">All</option>
+                                            <option value="yes">YES</option>
+                                            <option value="no">NO</option>
+                                        </select>
+                                        <select
+                                            value={sortKey}
+                                            onChange={(e) => setSortKey(e.target.value as any)}
+                                            className="h-10 px-3 rounded-md border border-[#535353] bg-[#2B2B2B] text-sm text-white outline-none"
+                                        >
+                                            <option value="stake">Stake</option>
+                                            <option value="outcome">Outcome</option>
+                                            <option value="market">Market</option>
+                                        </select>
+                                        <UIButton size="sm" variant="ghost" onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>
+                                            {sortDir === 'asc' ? 'Asc' : 'Desc'}
+                                        </UIButton>
+                                        <UIButton size="sm" variant="ghost" onClick={load} disabled={loading}>
+                                            {loading ? 'Loading…' : 'Refresh'}
+                                        </UIButton>
+                                    </div>
+                                </div>
+                                <div className="h-px bg-[#535353] my-2" />
+                                <div className="flex gap-4 flex-wrap">
+                                    <p className="text-xs text-gray-400">Total: <span className="text-white font-medium">{formatSui(totalStake)} SUI</span></p>
+                                    <p className="text-xs text-gray-400">YES: <span className="text-white font-medium">{formatSui(totalYesStake)} SUI</span></p>
+                                    <p className="text-xs text-gray-400">NO: <span className="text-white font-medium">{formatSui(totalNoStake)} SUI</span></p>
+                                </div>
+                                {loading && <p className="text-sm text-gray-400">Loading positions…</p>}
+                                {!loading && aggregated.length === 0 && <p className="text-sm text-gray-400">No positions match criteria.</p>}
                                 {!loading && aggregated.length > 0 && (
                                     <div className="grid gap-3 md:grid-cols-2">
                                         {aggregated.map(row => {
                                             const meta = marketMeta[row.marketId];
                                             const total = row.yes + row.no;
                                             return (
-                                                <Card key={row.marketId} className="market-card-sds" style={{ padding: 14 }}>
-                                                    <Flex align="center" justify="between" gap="3" wrap="wrap">
-                                                        <Flex align="center" gap="3">
+                                                <UICard key={row.marketId} className="p-3.5">
+                                                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                                                        <div className="flex items-center gap-3">
                                                             {meta?.imageUrl && (
-                                                                <img src={meta.imageUrl} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.15)' }} />
+                                                                <img src={meta.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover border border-white/15" />
                                                             )}
-                                                            <Flex direction="column" gap="1">
-                                                                <Text weight="bold">{meta?.title || shortId(row.marketId)}</Text>
+                                                            <div className="flex flex-col gap-1">
+                                                                <p className="font-bold text-white">{meta?.title || shortId(row.marketId)}</p>
                                                                 {meta?.description && (
-                                                                    <Text size="1" color="gray" className="line-clamp-2" style={{ maxWidth: 520 }}>{meta.description}</Text>
+                                                                    <p className="text-xs text-gray-400 line-clamp-2 max-w-[520px]">{meta.description}</p>
                                                                 )}
-                                                                <Flex gap="2" align="center">
-                                                                    <Badge variant="soft" color="green">YES {formatSui(row.yes)} SUI</Badge>
-                                                                    <Badge variant="soft" color="red">NO {formatSui(row.no)} SUI</Badge>
-                                                                    <Text size="1" color="gray">Total {formatSui(total)} SUI</Text>
-                                                                </Flex>
-                                                            </Flex>
-                                                        </Flex>
-                                                        <RadixLink asChild>
-                                                            <Link to={`/market/${row.marketId}`}>Open</Link>
-                                                        </RadixLink>
-                                                    </Flex>
-                                                </Card>
+                                                                <div className="flex gap-2 items-center flex-wrap">
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                                        YES {formatSui(row.yes)} SUI
+                                                                    </span>
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                                                        NO {formatSui(row.no)} SUI
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-400">Total {formatSui(total)} SUI</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <Link
+                                                            to={`/market/${row.marketId}`}
+                                                            className="px-3 py-1.5 rounded-md bg-[#B6F34E] text-black text-sm font-medium hover:bg-[#9ED93A] transition-colors"
+                                                        >
+                                                            Open
+                                                        </Link>
+                                                    </div>
+                                                </UICard>
                                             );
                                         })}
                                     </div>
                                 )}
-                            </Flex>
-                        </Card>
+                            </div>
+                        </UICard>
                     )}
-                </Flex>
-            </Container>
+                </div>
+            </div>
         </Layout>
     );
 };

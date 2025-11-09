@@ -8,7 +8,7 @@ export type UIButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const base =
-    'inline-flex items-center justify-center font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed rounded-md'
+    'inline-flex items-center justify-center font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-md'
 
 const sizeMap = {
     sm: 'h-8 px-3 text-sm',
@@ -18,10 +18,10 @@ const sizeMap = {
 
 const variantMap = {
     primary:
-        'bg-blue-600 text-white hover:bg-blue-500 focus-visible:ring-blue-400 ring-offset-0',
+        'bg-[#B6F34E] text-black hover:bg-[#9ED93A] focus-visible:ring-[#B6F34E] ring-offset-0',
     secondary:
-        'bg-white/5 text-white hover:bg-white/10 border border-white/10 focus-visible:ring-white/30',
-    ghost: 'bg-transparent text-white hover:bg-white/10 focus-visible:ring-white/30',
+        'bg-[#2B2B2B] text-white hover:bg-[#3a3a3a] border border-[#535353] focus-visible:ring-white/30',
+    ghost: 'bg-transparent text-white hover:bg-white/10 focus-visible:ring-white/30 border border-[#535353]',
 } as const
 
 export const Button = forwardRef<HTMLButtonElement, UIButtonProps>(

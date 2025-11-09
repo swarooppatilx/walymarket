@@ -1,4 +1,4 @@
-import { Card, Flex, Table, Text } from '@radix-ui/themes';
+import UICard from '~~/components/ui/Card';
 import { shortId, formatPercent } from '~~/walymarket/helpers/format';
 import useMarketActivity from '~~/walymarket/hooks/useMarketActivity';
 
@@ -6,49 +6,51 @@ export const TopHolders = ({ marketId, resolution }: { marketId: string; resolut
     const { holders, loading, error, reload } = useMarketActivity(marketId, resolution);
 
     return (
-        <Card>
-            <Flex direction="column" gap="3">
-                <Flex justify="between" align="center">
-                    <Text weight="bold" size="3">Top Holders</Text>
-                    <Text size="1" color="gray" className="cursor-pointer" onClick={reload}>↻</Text>
-                </Flex>
-                {loading && <Text size="2" color="gray">Loading holders…</Text>}
-                {error && <Text size="2" color="red">Failed to load holders</Text>}
-                {!loading && !error && holders.length === 0 && <Text size="2" color="gray">No positions yet</Text>}
+        <UICard className="p-4">
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-base font-bold text-white">Top Holders</h3>
+                    <button className="text-xs text-gray-400 cursor-pointer hover:text-white" onClick={reload}>↻</button>
+                </div>
+                {loading && <p className="text-sm text-gray-400">Loading holders…</p>}
+                {error && <p className="text-sm text-red-400">Failed to load holders</p>}
+                {!loading && !error && holders.length === 0 && <p className="text-sm text-gray-400">No positions yet</p>}
                 {!loading && !error && holders.length > 0 && (
-                    <Table.Root variant="surface">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.ColumnHeaderCell>Address</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>YES</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>NO</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell>Total</Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {holders.map(h => {
-                                const yesPct = h.total > 0 ? h.yes / h.total : 0;
-                                const netYes = h.yes < 0 ? 0 : h.yes;
-                                const netNo = h.no < 0 ? 0 : h.no;
-                                return (
-                                    <Table.Row key={h.address}>
-                                        <Table.Cell><Text size="2">{shortId(h.address)}</Text></Table.Cell>
-                                        <Table.Cell><Text size="2" color="jade">{netYes}</Text></Table.Cell>
-                                        <Table.Cell><Text size="2" color="crimson">{netNo}</Text></Table.Cell>
-                                        <Table.Cell>
-                                            <Flex align="center" gap="2">
-                                                <Text size="2" weight="medium">{h.total}</Text>
-                                                <Text size="1" color="gray">YES {formatPercent(yesPct)}</Text>
-                                            </Flex>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                );
-                            })}
-                        </Table.Body>
-                    </Table.Root>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="border-b border-[#535353]">
+                                <tr>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Address</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">YES</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">NO</th>
+                                    <th className="text-left py-2 text-xs font-medium text-gray-400">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {holders.map(h => {
+                                    const yesPct = h.total > 0 ? h.yes / h.total : 0;
+                                    const netYes = h.yes < 0 ? 0 : h.yes;
+                                    const netNo = h.no < 0 ? 0 : h.no;
+                                    return (
+                                        <tr key={h.address} className="border-b border-[#535353]/50">
+                                            <td className="py-2 text-white">{shortId(h.address)}</td>
+                                            <td className="py-2 text-emerald-400">{netYes}</td>
+                                            <td className="py-2 text-rose-400">{netNo}</td>
+                                            <td className="py-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-white font-medium">{h.total}</span>
+                                                    <span className="text-xs text-gray-400">YES {formatPercent(yesPct)}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
-            </Flex>
-        </Card>
+            </div>
+        </UICard>
     );
 };
 

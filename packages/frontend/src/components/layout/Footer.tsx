@@ -1,8 +1,6 @@
 import { useCurrentAccount } from '@mysten/dapp-kit'
-import { Link } from '@radix-ui/themes'
 import Faucet from '@suiware/kit/Faucet'
-import { HeartIcon, SearchIcon } from 'lucide-react'
-import ThemeSwitcher from '~~/components/ThemeSwitcher'
+import { GithubIcon, SearchIcon, ZapIcon } from 'lucide-react'
 import {
   CONTRACT_PACKAGE_VARIABLE_NAME,
   EXPLORER_URL_VARIABLE_NAME,
@@ -19,45 +17,55 @@ const Footer = () => {
   const currentAccount = useCurrentAccount()
 
   return (
-    <footer className="flex w-full flex-col items-center justify-between gap-4 p-6 sm:flex-row">
+    <footer className="flex w-full flex-col items-center justify-between gap-4 py-6 px-20 sm:flex-row bg-[#101214] border-t-2 border-[#535353]">
       <div className="flex flex-row items-center gap-3 sm:w-1/3">
         {currentAccount != null && (
           <>
-            <Faucet
-              onError={notification.error}
-              onSuccess={notification.success}
-            />
-            <Link
+            <button
+              onClick={() => {
+                // Faucet component handles the actual faucet logic
+                const faucetButton = document.querySelector('[data-faucet-button]') as HTMLButtonElement;
+                faucetButton?.click();
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#B6F34E] text-black text-sm font-medium hover:bg-[#9ED93A] transition-colors border border-[#9ED93A]"
+            >
+              <ZapIcon className="h-4 w-4" />
+              <span>Faucet</span>
+            </button>
+            <div className="hidden">
+              <Faucet
+                onError={notification.error}
+                onSuccess={notification.success}
+              />
+            </div>
+            <a
               href={packageUrl(explorerUrl, packageId)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-row items-center gap-1 text-sm"
-              highContrast={true}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2B2B2B] text-white text-sm font-medium hover:bg-[#3a3a3a] transition-colors border border-[#535353]"
             >
               <SearchIcon className="h-4 w-4" />
-              <span>Block Explorer</span>
-            </Link>
+              <span>Explorer</span>
+            </a>
           </>
         )}
       </div>
 
-      <div className="flex flex-row items-center justify-center gap-1.5 text-sm opacity-80 sm:w-1/3">
-        <span>Built with</span>
-        <HeartIcon className="h-4 w-4 fill-red-500 text-red-500" />
-        <span>on Sui</span>
-        <span>•</span>
-        <Link
-          href="https://github.com/suiware"
-          target="_blank"
-          rel="noopener noreferrer"
-          highContrast={true}
-        >
-          @suiware
-        </Link>
+      <div className="flex flex-row items-center justify-center gap-2 text-sm text-gray-400 sm:w-1/3">
+        <ZapIcon className="h-4 w-4 text-[#B6F34E]" />
+        <span>Built for Haulout 2025</span>
       </div>
 
       <div className="flex flex-row items-center justify-end gap-3 sm:w-1/3">
-        <ThemeSwitcher />
+        <a
+          href="https://github.com/swarooppatilx/walymarket"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          <GithubIcon className="h-4 w-4" />
+          <span>GitHub</span>
+        </a>
       </div>
     </footer>
   )
