@@ -1,6 +1,7 @@
-import { Badge, Flex, ScrollArea, SegmentedControl, Text } from '@radix-ui/themes';
+import { Flex, Text } from '@radix-ui/themes';
+import clsx from 'clsx';
 
-const PRIMARY = ['Trending', 'New', 'Politics', 'Crypto', 'Sports', 'Finance'] as const;
+const PRIMARY = ['Trending', 'New', 'Politics', 'Crypto', 'Sports', 'Finance', 'Resolved'] as const;
 
 export type PrimaryCategory = typeof PRIMARY[number];
 
@@ -16,19 +17,26 @@ export const CategoryNav = ({
             <Flex align="center" justify="between" wrap="wrap" gap="2">
                 <Text weight="bold" size="4">Explore Markets</Text>
             </Flex>
-            <SegmentedControl.Root value={value} onValueChange={(v) => onChange(v as PrimaryCategory)} size="2">
+            {/* Primary category chips */}
+            <div className="flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {PRIMARY.map((p) => (
-                    <SegmentedControl.Item key={p} value={p}>{p}</SegmentedControl.Item>
+                    <button
+                        key={p}
+                        onClick={() => onChange(p)}
+                        className={clsx(
+                            'px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                            'border',
+                            value === p
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white/5 dark:bg-slate-900/40 border-white/10 text-gray-300 hover:bg-white/10'
+                        )}
+                        aria-pressed={value === p}
+                    >
+                        {p}
+                    </button>
                 ))}
-            </SegmentedControl.Root>
-            <ScrollArea type="hover" scrollbars="horizontal">
-                <Flex gap="2" py="1">
-                    {/* Placeholder for secondary topic tags */}
-                    <Badge variant="soft" size="2" style={{ cursor: 'pointer' }}>All</Badge>
-                    <Badge variant="soft" size="2" style={{ cursor: 'pointer' }}>Hot</Badge>
-                    <Badge variant="soft" size="2" style={{ cursor: 'pointer' }}>This week</Badge>
-                </Flex>
-            </ScrollArea>
+            </div>
+            {/* Secondary filters removed as requested */}
         </Flex>
     );
 };

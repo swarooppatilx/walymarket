@@ -19,8 +19,8 @@ const Footer = () => {
   const currentAccount = useCurrentAccount()
 
   return (
-    <footer className="flex w-full flex-col items-center justify-between gap-3 p-3 sm:flex-row sm:items-end">
-      <div className="flex flex-row gap-3 lg:w-1/3">
+    <footer className="flex w-full flex-col items-center justify-between gap-4 p-6 sm:flex-row">
+      <div className="flex flex-row items-center gap-3 sm:w-1/3">
         {currentAccount != null && (
           <>
             <Faucet
@@ -31,7 +31,7 @@ const Footer = () => {
               href={packageUrl(explorerUrl, packageId)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-row items-center gap-1"
+              className="flex flex-row items-center gap-1 text-sm"
               highContrast={true}
             >
               <SearchIcon className="h-4 w-4" />
@@ -41,53 +41,22 @@ const Footer = () => {
         )}
       </div>
 
-      <div className="flex flex-grow flex-col items-center justify-center gap-1">
-        <div className="flex flex-row items-center justify-center gap-1">
-          <span>Built with</span>
-          <HeartIcon className="h-4 w-4" />
-          <span>by</span>
-          <Link
-            href="https://github.com/suiware"
-            target="_blank"
-            rel="noopener noreferrer"
-            highContrast={true}
-          >
-            @suiware
-          </Link>
-          <span>·</span>
-          <Link
-            href="https://github.com/suiware/sui-dapp-starter/issues/new"
-            target="_blank"
-            rel="noopener noreferrer"
-            highContrast={true}
-          >
-            Support
-          </Link>
-        </div>
-        <div className="text-center text-sm opacity-70">
-          SVG graphics, used in NFTs, have been borrowed from{' '}
-          <Link
-            href="https://github.com/twitter/twemoji"
-            target="_blank"
-            rel="noopener noreferrer"
-            highContrast={true}
-          >
-            twitter/twemoji
-          </Link>
-          <br />
-          and licensed under{' '}
-          <Link
-            href="https://creativecommons.org/licenses/by/4.0/"
-            target="_blank"
-            rel="noopener noreferrer"
-            highContrast={true}
-          >
-            CC-BY 4.0
-          </Link>
-        </div>
+      <div className="flex flex-row items-center justify-center gap-1.5 text-sm opacity-80 sm:w-1/3">
+        <span>Built with</span>
+        <HeartIcon className="h-4 w-4 fill-red-500 text-red-500" />
+        <span>on Sui</span>
+        <span>•</span>
+        <Link
+          href="https://github.com/suiware"
+          target="_blank"
+          rel="noopener noreferrer"
+          highContrast={true}
+        >
+          @suiware
+        </Link>
       </div>
 
-      <div className="flex flex-row justify-end lg:w-1/3">
+      <div className="flex flex-row items-center justify-end gap-3 sm:w-1/3">
         <ThemeSwitcher />
       </div>
     </footer>

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { Button, Card, Flex, Text, TextField, Spinner } from '@radix-ui/themes';
+import { Card as RadixCard, Flex, Text } from '@radix-ui/themes';
+import UIButton from '~~/components/ui/Button';
+import UIInput from '~~/components/ui/Input';
 import useTransact from '@suiware/kit/useTransact';
 import { SuiSignAndExecuteTransactionOutput } from '@mysten/wallet-standard';
 import { Market } from '~~/walymarket/types';
@@ -82,62 +84,55 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
     }, [market.resolved]);
 
     return (
-        <Card size="3">
+        <RadixCard size="3" className="border border-white/10 bg-white/5 dark:bg-slate-900/40">
             <Flex direction="column" gap="4">
                 <Text weight="bold" size="4">Place Bet</Text>
 
                 {market.resolved && (
-                    <Card variant="surface" style={{ background: 'rgba(229,72,77,0.1)', border: '1px solid rgba(229,72,77,0.2)' }}>
-                        <Text size="2" color="red" weight="medium">
+                    <RadixCard variant="surface" className="border border-red-500/20 bg-red-500/10">
+                        <Text size="2" color="red" weight="medium" className="py-1">
                             Market Resolved • Trading Closed
                         </Text>
-                    </Card>
+                    </RadixCard>
                 )}
 
                 {!currentAccount && !market.resolved && (
-                    <Card variant="surface" style={{ background: 'rgba(255,200,0,0.1)', border: '1px solid rgba(255,200,0,0.2)' }}>
-                        <Text size="2" weight="medium">
+                    <RadixCard variant="surface" className="border border-amber-500/20 bg-amber-500/10">
+                        <Text size="2" weight="medium" className="py-1">
                             Connect wallet to trade
                         </Text>
-                    </Card>
+                    </RadixCard>
                 )}
 
                 <Flex direction="column" gap="2">
                     <Text size="2" color="gray" weight="medium">Select Outcome</Text>
-                    <Flex gap="2">
-                        <Button
-                            style={{ flex: 1 }}
-                            size="2"
-                            color="green"
-                            variant={selectedOutcome === 'Yes' ? 'solid' : 'soft'}
+                    <div className="grid grid-cols-2 gap-2">
+                        <UIButton
+                            className={selectedOutcome === 'Yes' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-white/5 hover:bg-white/10 text-white'}
                             onClick={() => setSelectedOutcome('Yes')}
                             disabled={market.resolved || !currentAccount}
                         >
-                            <Flex align="center" gap="2">
-                                <Text weight="bold">Yes</Text>
-                                <Text size="1">{formatPercent(market.yesChance)}</Text>
-                            </Flex>
-                        </Button>
-                        <Button
-                            style={{ flex: 1 }}
-                            size="2"
-                            color="red"
-                            variant={selectedOutcome === 'No' ? 'solid' : 'soft'}
+                            <span className="flex items-center gap-2">
+                                <span className="font-bold">Yes</span>
+                                <span className="text-xs opacity-80">{formatPercent(market.yesChance)}</span>
+                            </span>
+                        </UIButton>
+                        <UIButton
+                            className={selectedOutcome === 'No' ? 'bg-rose-500 hover:bg-rose-400' : 'bg-white/5 hover:bg-white/10 text-white'}
                             onClick={() => setSelectedOutcome('No')}
                             disabled={market.resolved || !currentAccount}
                         >
-                            <Flex align="center" gap="2">
-                                <Text weight="bold">No</Text>
-                                <Text size="1">{formatPercent(market.noChance)}</Text>
-                            </Flex>
-                        </Button>
-                    </Flex>
+                            <span className="flex items-center gap-2">
+                                <span className="font-bold">No</span>
+                                <span className="text-xs opacity-80">{formatPercent(market.noChance)}</span>
+                            </span>
+                        </UIButton>
+                    </div>
                 </Flex>
 
                 <Flex direction="column" gap="2">
                     <Text size="2" color="gray" weight="medium">Amount (SUI)</Text>
-                    <TextField.Root
-                        size="3"
+                    <UIInput
                         placeholder="Enter amount..."
                         type="number"
                         value={amountSUI}
@@ -155,7 +150,7 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                 </Flex>
 
                 {payoutEstimate && selectedOutcome && (
-                    <Card variant="surface" style={{ background: 'rgba(70,167,88,0.08)' }}>
+                    <RadixCard variant="surface" className="bg-emerald-500/10">
                         <Flex direction="column" gap="2">
                             <Text size="2" weight="medium">Expected Returns</Text>
                             <Flex direction="column" gap="1">
@@ -179,26 +174,20 @@ export const TradeWidget = ({ market, onTrade }: { market: Market; onTrade?: () 
                                 </Flex>
                             </Flex>
                         </Flex>
-                    </Card>
+                    </RadixCard>
                 )}
 
-                <Button
-                    size="3"
+                <UIButton
                     onClick={handleTrade}
                     disabled={market.resolved || !currentAccount || !selectedOutcome || !amountSUI || pending}
-                    style={{ width: '100%' }}
+                    loading={pending}
+                    className="w-full"
                 >
-                    {pending ? (
-                        <Flex align="center" gap="2">
-                            <Spinner /> Submitting...
-                        </Flex>
-                    ) : (
-                        selectedOutcome && amountSUI
-                            ? `Bet ${parseFloat(amountSUI).toFixed(2)} SUI on ${selectedOutcome}`
-                            : 'Enter amount to trade'
-                    )}
-                </Button>
+                    {selectedOutcome && amountSUI
+                        ? `Bet ${parseFloat(amountSUI).toFixed(2)} SUI on ${selectedOutcome}`
+                        : 'Enter amount to trade'}
+                </UIButton>
             </Flex>
-        </Card>
+        </RadixCard>
     );
 };
