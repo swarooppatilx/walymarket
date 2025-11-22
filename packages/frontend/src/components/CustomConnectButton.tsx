@@ -1,6 +1,5 @@
-import { ConnectModal, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
+import { ConnectModal, useCurrentAccount } from '@mysten/dapp-kit'
 import { Link } from 'react-router-dom'
-import { APP_NAME } from '~~/config/main'
 import { useState, useRef, useEffect } from 'react'
 
 const pillClasses =
