@@ -27,7 +27,7 @@ const App: FC = () => {
           customNetworkConfig={networkConfig}
           defaultNetwork={ENetwork.LOCALNET}
           walletAutoConnect={true}
-          walletStashedName={APP_NAME}
+          walletSlushName={APP_NAME}
           themeSettings={themeSettings}
         >
           <BrowserRouter>

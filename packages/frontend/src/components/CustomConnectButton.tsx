@@ -1,6 +1,5 @@
 import { ConnectModal, useCurrentAccount } from '@mysten/dapp-kit'
 import { Link } from 'react-router-dom'
-import { APP_NAME } from '~~/config/main'
 import { useState, useRef, useEffect } from 'react'
 
 const pillClasses =
@@ -17,7 +16,7 @@ const CustomConnectButton = () => {
 
   const logout = () => {
     try {
-      localStorage.removeItem(APP_NAME)
+      localStorage.removeItem('sui-dapp-kit:wallet-connection-info');
     } catch { }
     // Reload to fully reset providers and clear connection state
     window.location.reload()
